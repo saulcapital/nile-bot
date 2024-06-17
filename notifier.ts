@@ -16,7 +16,8 @@ const main = async () => {
   const bot = new Bot(process.env.BOT_KEY || "");
   while (true) {
     try {
-      console.log(`Running loop at ${new Date()}`);
+      const startDate = new Date();
+      console.log(`Running loop at ${startDate}`);
       const positions = await getAllPositionsFromDatabase();
       for (const databasePosition of positions) {
         const onchainPosition = await getPositionFromChain(
@@ -47,7 +48,7 @@ const main = async () => {
                 databasePosition.tg_id,
                 `${databasePosition.exchange} CL position ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} #${databasePosition.position_id} has moved out of range.`,
               );
-              console.log(`Sent message for ${databasePosition.tg_id}`);
+              console.log(`Sent message for ${databasePosition.username} for ${databasePosition.position_id}`);
             }
           } else {
             if (!databasePosition.in_range) {
@@ -60,18 +61,20 @@ const main = async () => {
                 databasePosition.tg_id,
                 `${databasePosition.exchange} CL position ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} #${databasePosition.position_id} has moved into range.`,
               );
-              console.log(`Sent message for ${databasePosition.tg_id}`);
+              console.log(`Sent message for ${databasePosition.username} for ${databasePosition.position_id}`);
             }
           }
         } else {
           if (onchainPosition.status == "burned") {
             await updateDatabasePositionBurned(databasePosition.position_id, databasePosition.exchange);
             console.log(
-              `Position ${databasePosition.position_id} on ${databasePosition.exchange} has been burned.`,
+              `Position ${databasePosition.position_id} on ${databasePosition.exchange} from ${databasePosition.username} has been burned.`,
             );
           }
         }
       }
+      const endDate = new Date();
+      console.log(`Finished processing ${positions.length} positions in ${(endDate.getTime() - startDate.getTime())/1000} seconds!\n`)
       await new Promise((r) => setTimeout(r, INTERVAL));
     } catch (error) {
       console.error("Error occurred in the loop:", error);

@@ -97,10 +97,10 @@ export const getPositionsFromDatabase = async (positionId: number, exchange: str
 
 // Get all non burned positions from the database
 export const getAllPositionsFromDatabase = async (): Promise<
-  { tg_id: string; position_id: number; burned: boolean; in_range: boolean; exchange: string }[]
+  { tg_id: string; username: string; position_id: number; burned: boolean; in_range: boolean; exchange: string }[]
 > => {
   let result = await pool.query(
-    `SELECT tg_id, position_id, burned, in_range, exchange FROM positions WHERE burned IS FALSE;`,
+    `SELECT tg_id, username, position_id, burned, in_range, exchange FROM positions WHERE burned IS FALSE;`,
   );
   return result.rows;
 };
