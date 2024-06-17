@@ -29,6 +29,9 @@ const pool = new PgPool({
   max: 10, // max number of clients in the pool
 });
 
+// an in memory mapping of token addresses -> symbols
+const tokenSymbols: Record<string, string> = {}
+
 export const getPositionFromChain = async (
   positionId: number,
   exchange: string
@@ -50,10 +53,18 @@ export const getPositionFromChain = async (
   try {
     const nfpm = nfpmContract(exchange);
     position = await nfpm.positions(positionId);
-    const token0Contract = new ethers.Contract(position.token0, ERC20, provider(exchange));
-    token0Symbol = await token0Contract.symbol();
-    const token1Contract = new ethers.Contract(position.token1, ERC20, provider(exchange));
-    token1Symbol = await token1Contract.symbol();
+    if (!(position.token0 in tokenSymbols)) {
+      const token0Contract = new ethers.Contract(position.token0, ERC20, provider(exchange));
+      token0Symbol = await token0Contract.symbol();
+      tokenSymbols[position.token0] = token0Symbol;
+      console.log(`Stored symbol ${token0Symbol} on ${exchange}`);
+    }
+    if (!(position.token1 in tokenSymbols)) {
+      const token1Contract = new ethers.Contract(position.token1, ERC20, provider(exchange));
+      token1Symbol = await token1Contract.symbol();
+      tokenSymbols[position.token1] = token1Symbol;
+      console.log(`Stored symbol ${token1Symbol} on ${exchange}`);
+    }
   } catch (e) {
     const message = (e as Error).message;
     if (message.includes("!VALID ID") || message.includes("Invalid token ID")) {
@@ -63,7 +74,7 @@ export const getPositionFromChain = async (
       return { status: "error" };
     }
   }
-  return { status: "success", position, token0Symbol, token1Symbol };
+  return { status: "success", position, token0Symbol: tokenSymbols[position.token0], token1Symbol: tokenSymbols[position.token1] };
 };
 
 // slot0[1] is tick
