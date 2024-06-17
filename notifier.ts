@@ -33,7 +33,11 @@ const main = async () => {
             onchainPosition.position!.fee,
             databasePosition.exchange
           );
-          const currentTick = slot0![1];
+          if (!slot0) {
+            console.log(`Error getting slot0 for ${databasePosition.username}, ${databasePosition.exchange} #${databasePosition.position_id}. Skipping.`);
+            continue;
+          }
+          const currentTick = slot0[1];
           const inRange =
             onchainPosition.position.tickLower <= currentTick &&
             currentTick <= onchainPosition.position.tickUpper;
@@ -77,7 +81,7 @@ const main = async () => {
       console.log(`Finished processing ${positions.length} positions in ${(endDate.getTime() - startDate.getTime())/1000} seconds!\n`)
       await new Promise((r) => setTimeout(r, INTERVAL));
     } catch (error) {
-      console.error("Error occurred in the loop:", error);
+      console.error("Error occurred and prematurely exited:", error, '\n');
       await new Promise((r) => setTimeout(r, 100000));
     }
   }
