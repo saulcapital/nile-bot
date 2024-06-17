@@ -16,8 +16,8 @@ const bot = new Bot(process.env.BOT_KEY || "");
 
 bot.command("start", (ctx) =>
   ctx.reply(
-    "Welcome to KingdomBot!\n" +  
-    "Currently we support tracking when your Ramses, Nile, Nuri, Pharaoh, Cleo, and Ra CL positions get out of (and back into) range.\n\n" +
+    "Welcome to the Wizard of Az Bot 🧙! \n" +
+    "Currently we support tracking when your Ramses Kingdom (Ramses, Nile, Nuri, Pharaoh, Cleo, and Ra) CL positions get out of (and back into) range.\n\n" +
     "Made by AzFlin (https://twitter.com/AzFlin).\n\n" +
     "Type /commands to see the list of available commands.",
   ),
