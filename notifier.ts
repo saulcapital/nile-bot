@@ -74,6 +74,8 @@ const main = async () => {
             console.log(
               `Position ${databasePosition.position_id} on ${databasePosition.exchange} from ${databasePosition.username} has been burned.`,
             );
+          } else if (onchainPosition.status == "error") {
+            console.log(`Position ${databasePosition.position_id} on ${databasePosition.exchange} from ${databasePosition.username} errored when calling getPositionFromChain().`)
           }
         }
       }

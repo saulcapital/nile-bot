@@ -53,6 +53,7 @@ export const getPositionFromChain = async (
   try {
     const nfpm = nfpmContract(exchange);
     position = await nfpm.positions(positionId);
+    // TODO: We should account for token addresses PER chain
     if (!(position.token0 in tokenSymbols)) {
       const token0Contract = new ethers.Contract(position.token0, ERC20, provider(exchange));
       token0Symbol = await token0Contract.symbol();
