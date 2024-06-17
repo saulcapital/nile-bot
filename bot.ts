@@ -117,7 +117,7 @@ bot.command("untrack", async (ctx) => {
     return;
   }
   if (args.length < 2) {
-    await ctx.reply("Must provide a position id and exchange name, ie /untrack 71255 nile or use /untrack all to stop tracking all positions.");
+    await ctx.reply("Must provide a position id and exchange name, ie `/untrack 71255 nile` or use `/untrack all` to stop tracking all positions.");
     return;
   }
 
