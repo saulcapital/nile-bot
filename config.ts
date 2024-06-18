@@ -1,10 +1,13 @@
+import * as dotenv from "dotenv";
+dotenv.config({ path: __dirname + "/.env" });
+
 export const RPC_URLS: { [key: string]: string } = {
-  "nile": "https://rpc.linea.build",
-  "pharaoh": "https://avalanche.drpc.org",
-  "nuri": "https://scroll.drpc.org",
-  "ra": "https://rpc.frax.com",
-  "cleo": "https://mantle.drpc.org",
-  "ramses": "https://arbitrum.drpc.org" 
+  "nile": process.env.LINEA_RPC || "https://rpc.linea.build",
+  "pharaoh": process.env.AVALANCHE_RPC || "https://avalanche.drpc.org",
+  "nuri": process.env.SCROLL_RPC || "https://scroll.drpc.org",
+  "ra": process.env.FRAX_RPC || "https://rpc.frax.com",
+  "cleo": process.env.MANTLE_RPC || "https://mantle.drpc.org",
+  "ramses": process.env.ARBITRUM_RPC || "https://arbitrum.drpc.org"
 };
 
 export const NFPM_ADDRESSES: { [key: string]: string } = {
