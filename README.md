@@ -2,7 +2,13 @@
 
 A telegram bot that notifies you when your Ramses ecosystem (Ramses, Nile, Nuri, Pharaoh, Ra, Cleo) concentrated liquidity positions move out (and back in) of range.
 
-Ramses Twitter: https://x.com/RamsesExchange
+Currently deployed at: https://t.me/WizardOfAzBot
+
+Ramses: https://x.com/RamsesExchange
+
+Nile: https://x.com/NileExchange
+
+Nuri: https://x.com/NuriExchange
 
 To set up locally, you must create a SQL table by running `scripts/sql_scripts.sql`. Complete your `.env` and then:
 

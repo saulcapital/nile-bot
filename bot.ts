@@ -64,7 +64,7 @@ bot.command("track", async (ctx) => {
     }
     const inRange =
       onChainPosition.position!.tickLower <= slot0[1] &&
-      onChainPosition.position!.tickUpper >= slot0[1];
+      onChainPosition.position!.tickUpper > slot0[1];
       
     if (databasePositions.length == 0) {
       await insertPositionIntoDatabase(
@@ -189,7 +189,7 @@ bot.command("help", async (ctx) => {
   await ctx.reply(
     "This bot will send you a message when your tracked CL positions move out of range.\n\n" + 
     "Type /commands for the command list.\n\n" + 
-    "Contact https://twitter.com/AzFlin for any questions!",
+    "Contact AzFlin on Twitter or TG for any questions!",
   );
 });
 
