@@ -40,7 +40,7 @@ const main = async () => {
           const currentTick = slot0[1];
           const inRange =
             onchainPosition.position.tickLower <= currentTick &&
-            currentTick <= onchainPosition.position.tickUpper;
+            currentTick < onchainPosition.position.tickUpper;
           if (!inRange) {
             if (databasePosition.in_range) {
               await updateDatabasePositionInRange(
