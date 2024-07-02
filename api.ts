@@ -78,13 +78,13 @@ export const getPositionFromChain = async (
   return { status: "success", position, token0Symbol: tokenSymbols[position.token0], token1Symbol: tokenSymbols[position.token1] };
 };
 
-// slot0[1] is tick
+// slot0[1] is tick, slot0[0] is sqrtPriceX96
 export const getPoolSlot0 = async (
   token0: string,
   token1: string,
   fee: number,
   exchange: string
-): Promise<null | any[]> => {
+): Promise<null | [number, number, number, number, number, number, number, boolean]> => {
   const tokenA = new Token(CHAIN_IDS[exchange], token0, 18);
   const tokenB = new Token(CHAIN_IDS[exchange], token1, 18);
   const poolAddress = Pool.getAddress(tokenA, tokenB, fee, POOL_INIT_CODE_HASHES[exchange], FACTORIES[exchange]);
