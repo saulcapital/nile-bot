@@ -79,24 +79,26 @@ export const getPositionFromChain = async (
 };
 
 // slot0[1] is tick, slot0[0] is sqrtPriceX96
-export const getPoolSlot0 = async (
+export const getPoolSlot0AndLiquidity = async (
   token0: string,
   token1: string,
   fee: number,
   exchange: string
-): Promise<null | [number, number, number, number, number, number, number, boolean]> => {
+): Promise<null | { slot0: [number, number, number, number, number, number, number, boolean], liquidity: number}> => {
   const tokenA = new Token(CHAIN_IDS[exchange], token0, 18);
   const tokenB = new Token(CHAIN_IDS[exchange], token1, 18);
   const poolAddress = Pool.getAddress(tokenA, tokenB, fee, POOL_INIT_CODE_HASHES[exchange], FACTORIES[exchange]);
   const clPoolContract = new ethers.Contract(poolAddress, ClPool, provider(exchange));
   let slot0;
+  let liquidity;
   try {
     slot0 = await clPoolContract.slot0();
+    liquidity = await clPoolContract.liquidity();
   } catch (e) {
     console.log(`Error with getPoolSlot0: ${e}`);
     return null;
   }
-  return slot0;
+  return { slot0, liquidity };
 };
 
 export const getPositionsFromDatabase = async (positionId: number, exchange: string) => {

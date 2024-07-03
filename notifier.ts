@@ -3,7 +3,7 @@ dotenv.config({ path: __dirname + "/.env" });
 import {
   getPositionFromChain,
   getAllPositionsFromDatabase,
-  getPoolSlot0,
+  getPoolSlot0AndLiquidity,
   updateDatabasePositionInRange,
   updateDatabasePositionBurned,
 } from "./api";
@@ -27,16 +27,17 @@ const main = async () => {
         // if there is a position, then get the current tick. If current tick has moved in or out of position's range,
         // then update the `inRange` column of `positions` table for that position
         if (onchainPosition.position) {
-          const slot0 = await getPoolSlot0(
+          const poolInfo = await getPoolSlot0AndLiquidity(
             onchainPosition.position!.token0,
             onchainPosition.position!.token1,
             onchainPosition.position!.fee,
             databasePosition.exchange
           );
-          if (!slot0) {
+          if (!poolInfo) {
             console.log(`Error getting slot0 for ${databasePosition.username}, ${databasePosition.exchange} #${databasePosition.position_id}. Skipping.`);
             continue;
           }
+          const { slot0, liquidity } = poolInfo;
           const currentTick = slot0[1];
           const inRange =
             onchainPosition.position.tickLower <= currentTick &&

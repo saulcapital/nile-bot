@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: __dirname + "/.env" });
 import { Bot } from "grammy";
 import {
-  getPoolSlot0,
+  getPoolSlot0AndLiquidity,
   getPositionFromChain,
   getPositionsFromDatabase,
   insertPositionIntoDatabase,
@@ -52,16 +52,17 @@ bot.command("track", async (ctx) => {
 
   const databasePositions = await getPositionsFromDatabase(positionId, exchange);
   if (onChainPosition.status == "success") {
-    const slot0 = await getPoolSlot0(
+    const poolInfo = await getPoolSlot0AndLiquidity(
       onChainPosition.position!.token0,
       onChainPosition.position!.token1,
       onChainPosition.position!.fee,
       exchange
     );
-    if (!slot0) {
+    if (!poolInfo) {
       await ctx.reply("Error calling getPoolSlot0().");
       return;
     }
+    const { slot0, liquidity } = poolInfo;
     const inRange =
       onChainPosition.position!.tickLower <= slot0[1] &&
       onChainPosition.position!.tickUpper > slot0[1];
