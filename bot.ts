@@ -30,6 +30,10 @@ bot.command("track", async (ctx) => {
     return;
   }
   const username = ctx.message?.from.username;
+  if (!username) {
+    await ctx.reply("You must set a telegram username to use this bot.");
+    return;
+  }
   const args = ctx.match?.split(" ");
   if (!args || args.length < 2) {
     await ctx.reply("Must provide a position id and exchange name, ie /track 71255 nile.");
@@ -71,7 +75,7 @@ bot.command("track", async (ctx) => {
         positionId,
         userId.toString(),
         inRange,
-        username!.toString(),
+        username.toString(),
         exchange
       );
       await ctx.reply(
@@ -84,7 +88,7 @@ bot.command("track", async (ctx) => {
           positionId,
           userId.toString(),
           inRange,
-          username!.toString(),
+          username.toString(),
           exchange
         );
         await ctx.reply(
