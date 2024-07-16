@@ -8,6 +8,7 @@
     "ethers": "^6.13.0",
     "grammy": "^1.24.1",
     "pg": "^8.12.0",
+    "ramsesexchange-v3-sdk": "https://github.com/RamsesExchange/v3-sdk",
     "typescript": "^5.4.5"
   },
   "devDependencies": {
