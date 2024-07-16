@@ -43,6 +43,7 @@ export const getPositionFromChain = async (
     token0: string;
     token1: string;
     fee: number;
+    liquidity: string;
   };
   token0Symbol?: string;
   token1Symbol?: string;

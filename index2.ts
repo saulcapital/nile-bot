@@ -13,15 +13,15 @@ async function main() {
   const token1 = new Token(chainId, WETH, 18);
   const fee = Number(positionFromChain.position!.fee);
   const poolInfo = await getPoolSlot0AndLiquidity(token0.address, token1.address, fee, 'nile');
-  const liquidity = poolInfo!.liquidity.toString();
+  const poolLiquidity = poolInfo!.liquidity.toString();
   const currentTick = Number(poolInfo!.slot0[1]);
   const sqrtRatiox96 = poolInfo!.slot0[0].toString();
   const tickLower = Number(positionFromChain.position!.tickLower);
   const tickUpper = Number(positionFromChain.position!.tickUpper);
-  console.log({poolInfo, liquidity, currentTick, sqrtRatiox96, fee, tickLower, tickUpper});
+  console.log({poolInfo, liquidity: poolLiquidity, currentTick, sqrtRatiox96, fee, tickLower, tickUpper});
   const position = new Position({
-    pool: new Pool(token0, token1, fee, sqrtRatiox96, liquidity, currentTick),
-    liquidity,
+    pool: new Pool(token0, token1, fee, JSBI.BigInt(sqrtRatiox96), poolLiquidity, currentTick),
+    liquidity: JSBI.BigInt(positionFromChain.position!.liquidity.toString()),
     tickLower,
     tickUpper
   });
