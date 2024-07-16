@@ -5,7 +5,7 @@ import JSBI from 'jsbi';
 import { getPositionFromChain, getPoolSlot0AndLiquidity } from "./api";
 
 async function main() {
-  const positionFromChain = await getPositionFromChain(123991, 'nile');
+  const positionFromChain = await getPositionFromChain(125111, 'nile');
   const chainId = 59144;
   const WETH = '0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f';
   const weETH = '0x1Bf74C010E6320bab11e2e5A532b5AC15e0b8aA6';
