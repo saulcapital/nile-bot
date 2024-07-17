@@ -97,6 +97,7 @@ bot.command("track", async (ctx) => {
         await ctx.reply(
           `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for you. It is currently ${inRange ? "in range." : "out of range."}`,
         );
+        console.log(`Tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for ${username} on ${(new Date()).toLocaleString()}`);
       } else {
         await ctx.reply("This position is already being tracked by you.");
       }
