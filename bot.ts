@@ -172,6 +172,8 @@ bot.command("pools", async (ctx) => {
         response += `- ${pool.exchange} (#${pool.position_id}), Error fetching token symbols\n`;
       }
     }
+    const username = ctx.message?.from.username;
+    console.log(`${username} just called /pools on ${(new Date()).toLocaleString()}`);
     await ctx.reply(response);
   }
 });
