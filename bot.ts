@@ -78,7 +78,10 @@ bot.command("track", async (ctx) => {
         userId.toString(),
         inRange,
         username.toString(),
-        exchange
+        exchange,
+        onChainPosition.position!.token0,
+        onChainPosition.position!.token1,
+        onChainPosition.position!.fee,
       );
       await ctx.reply(
         `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId}. It is currently ${inRange ? "in range." : "out of range."}`,
@@ -92,7 +95,10 @@ bot.command("track", async (ctx) => {
           userId.toString(),
           inRange,
           username.toString(),
-          exchange
+          exchange,
+          onChainPosition.position!.token0,
+          onChainPosition.position!.token1,
+          onChainPosition.position!.fee,
         );
         await ctx.reply(
           `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for you. It is currently ${inRange ? "in range." : "out of range."}`,
