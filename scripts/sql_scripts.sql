@@ -21,3 +21,7 @@ DROP CONSTRAINT positions_pkey;
 ALTER TABLE positions
 ADD COLUMN id SERIAL PRIMARY KEY,
 ALTER COLUMN position_id DROP NOT NULL;
+
+ALTER TABLE positions
+ADD COLUMN token0Symbol text,
+ADD COLUMN token1Symbol text;
