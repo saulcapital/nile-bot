@@ -7,3 +7,10 @@ CREATE TABLE IF NOT EXISTS positions
     in_range boolean,
     exchange text
 );
+
+-- July 15 2024
+ALTER TABLE positions
+ADD COLUMN token0 text,
+ADD COLUMN token1 text,
+ADD COLUMN fee INTEGER,
+ADD COLUMN date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
