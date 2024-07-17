@@ -177,13 +177,8 @@ bot.command("pools", async (ctx) => {
   } else {
     let response = "You are tracking the following pools:\n";
     for (const pool of trackedPools) {
-      const onChainPosition = await getPositionFromChain(pool.position_id, pool.exchange);
-      if (onChainPosition.status === "success") {
-        const inRangeText = pool.in_range ? "In Range" : "Out of Range";
-        response += `- ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
-      } else {
-        response += `- ${pool.exchange} (#${pool.position_id}), Error fetching token symbols\n`;
-      }
+      const inRangeText = pool.in_range ? "In Range" : "Out of Range";
+      response += `- ${pool.token0symbol}/${pool.token1symbol} on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
     }
     const username = ctx.message?.from.username;
     console.log(`${username} just called /pools on ${(new Date()).toLocaleString()}`);
