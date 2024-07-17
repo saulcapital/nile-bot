@@ -83,6 +83,7 @@ bot.command("track", async (ctx) => {
       await ctx.reply(
         `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId}. It is currently ${inRange ? "in range." : "out of range."}`,
       );
+      console.log(`Tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for ${username} on ${(new Date()).toLocaleString()}`);
     } else {
       const userAlreadyTracking = databasePositions.some((pos) => pos.tg_id === userId.toString());
       if (!userAlreadyTracking) {
@@ -173,6 +174,8 @@ bot.command("pools", async (ctx) => {
         response += `- ${pool.exchange} (#${pool.position_id}), Error fetching token symbols\n`;
       }
     }
+    const username = ctx.message?.from.username;
+    console.log(`${username} just called /pools on ${(new Date()).toLocaleString()}`);
     await ctx.reply(response);
   }
 });

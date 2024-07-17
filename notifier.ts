@@ -53,7 +53,7 @@ const main = async () => {
                 databasePosition.tg_id,
                 `${databasePosition.exchange} CL position ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} #${databasePosition.position_id} has moved out of range.`,
               );
-              console.log(`Sent message for ${databasePosition.username} for ${databasePosition.position_id}`);
+              console.log(`Sent message for ${databasePosition.username} for ${databasePosition.position_id} ${databasePosition.exchange} ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} out of range`);
             }
           } else {
             if (!databasePosition.in_range) {
@@ -66,7 +66,7 @@ const main = async () => {
                 databasePosition.tg_id,
                 `${databasePosition.exchange} CL position ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} #${databasePosition.position_id} has moved into range.`,
               );
-              console.log(`Sent message for ${databasePosition.username} for ${databasePosition.position_id}`);
+              console.log(`Sent message for ${databasePosition.username} for ${databasePosition.position_id} ${databasePosition.exchange} ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} back in range`);
             }
           }
         } else {
