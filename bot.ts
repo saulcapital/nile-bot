@@ -229,12 +229,12 @@ bot.command("pools", async (ctx) => {
     const urlsToFetch = [];
     for (const exchange of uniqueExchanges) {
       const apiUrl = API_URLS[exchange];
-      urlsToFetch.push(apiUrl);
+      urlsToFetch.push({apiUrl, exchange});
     }
     const fetchPromises = urlsToFetch.map((url) =>
-      fetch(url).then((res) => res.json()),
+      fetch(url.apiUrl).then((res) => ({exchange: url.exchange, data: res.json()})),
     );
-    const results = await Promise.all(fetchPromises);
+    const apiResults = await Promise.all(fetchPromises);
 
     for (const pool of trackedPools) {
       const poolInfo = await getPoolSlot0AndLiquidity(
@@ -265,6 +265,9 @@ bot.command("pools", async (ctx) => {
         tickUpper: pool.tickupper,
       });
       const { amount0, amount1 } = position.mintAmounts;
+
+      const apiResult = apiResults.find(x => x.exchange == pool.exchange);
+      console.log(apiResult);
 
       response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
       response += `    https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
