@@ -3,19 +3,20 @@ dotenv.config();
 import { Pool as PgPool } from "pg";
 import { getPositionFromChain } from "../api";
 
-async function main() {
-  const pool = new PgPool({
-    user: process.env.POSTGRES_USER,
-    host: process.env.POSTGRES_HOST,
-    database: process.env.POSTGRES_DB,
-    password: process.env.POSTGRES_PASSWORD,
-    port: process.env.POSTGRES_PORT
-      ? parseInt(process.env.POSTGRES_PORT)
-      : 25060,
-    // if connecting to local database, do NOT enable SSL. Otherwise, do enable SSL.
-    ssl: process.env.LOCAL_DB ? undefined : { rejectUnauthorized: false },
-    max: 10, // max number of clients in the pool
-  });
+const pool = new PgPool({
+  user: process.env.POSTGRES_USER,
+  host: process.env.POSTGRES_HOST,
+  database: process.env.POSTGRES_DB,
+  password: process.env.POSTGRES_PASSWORD,
+  port: process.env.POSTGRES_PORT
+    ? parseInt(process.env.POSTGRES_PORT)
+    : 25060,
+  // if connecting to local database, do NOT enable SSL. Otherwise, do enable SSL.
+  ssl: process.env.LOCAL_DB ? undefined : { rejectUnauthorized: false },
+  max: 10, // max number of clients in the pool
+});
+
+async function backfill_token_and_liquidities() {
   const result = await pool.query(
     `SELECT id, position_id, exchange FROM positions WHERE burned IS FALSE`,
   );
@@ -60,7 +61,34 @@ async function main() {
   }
 }
 
-main()
+async function backfill_owners() {
+  const result = await pool.query(
+    `SELECT id, position_id, exchange FROM positions WHERE burned IS FALSE`,
+  );
+  const positionsToBackfill = result.rows;
+  for (const position of positionsToBackfill) {
+    const positionFromChain = await getPositionFromChain(
+      position.position_id,
+      position.exchange,
+    );
+
+    // Update the position in the database
+    await pool.query(
+      `UPDATE positions 
+     SET 
+       owner = $1
+     WHERE id = $2`,
+      [
+        positionFromChain.owner,
+        position.id,
+      ],
+    );
+
+    console.log(`Updated position ${position.id}`);
+  }
+}
+
+backfill_owners()
   .then(() => {
     process.exit(0);
   })
