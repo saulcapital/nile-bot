@@ -51,6 +51,7 @@ export const getPositionFromChain = async (
     fee: number;
     liquidity: string;
   };
+  owner?: string;
   token0Symbol?: string;
   token1Symbol?: string;
   token0Decimals?: number;
@@ -61,9 +62,11 @@ export const getPositionFromChain = async (
   let token1Symbol;
   let token0Decimals;
   let token1Decimals;
+  let owner;
   try {
     const nfpm = nfpmContract(exchange);
     position = await nfpm.positions(positionId);
+    owner = await nfpm.ownerOf(positionId);
     // TODO: We should account for token addresses PER chain
     if (!(position.token0 in tokenSymbols)) {
       const token0Contract = new ethers.Contract(
@@ -105,6 +108,7 @@ export const getPositionFromChain = async (
   return {
     status: "success",
     position,
+    owner,
     token0Symbol: tokenSymbols[position.token0].symbol,
     token1Symbol: tokenSymbols[position.token1].symbol,
     token0Decimals: tokenSymbols[position.token0].decimals,
@@ -192,9 +196,10 @@ export const insertPositionIntoDatabase = async (
   positionLiquidity: string,
   token0Decimals: number,
   token1Decimals: number,
+  owner: string,
 ) => {
   await pool.query(
-    `INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
+    `INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals, owner) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
     [
       tgId,
       username,
@@ -212,6 +217,7 @@ export const insertPositionIntoDatabase = async (
       positionLiquidity,
       token0Decimals,
       token1Decimals,
+      owner,
     ],
   );
 };

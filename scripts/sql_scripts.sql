@@ -36,3 +36,6 @@ ADD COLUMN positionLiquidity text;
 ALTER TABLE positions
 ADD COLUMN token0Decimals integer,
 ADD COLUMN token1Decimals integer;
+
+ALTER TABLE positions
+ADD COLUMN owner text;
