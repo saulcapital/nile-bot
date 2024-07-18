@@ -242,7 +242,7 @@ bot.command("pools", async (ctx) => {
       });
       const { amount0, amount1 } = position.mintAmounts;
 
-      response += `- ${pool.token0symbol} (${ethers.formatUnits(JSBI.toNumber(amount0).toString(), pool.token0decimals)})/ ${pool.token1symbol} (${ethers.formatUnits(JSBI.toNumber(amount1).toString(), pool.token1decimals)}) on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
+      response += `- ${pool.token0symbol} (${Number(ethers.formatUnits(JSBI.toNumber(amount0).toString(), pool.token0decimals)).toFixed(2)})/ ${pool.token1symbol} (${Number(ethers.formatUnits(JSBI.toNumber(amount1).toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
     }
     const username = ctx.message?.from.username;
     console.log(
