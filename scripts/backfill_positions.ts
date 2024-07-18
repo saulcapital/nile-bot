@@ -8,9 +8,7 @@ const pool = new PgPool({
   host: process.env.POSTGRES_HOST,
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT
-    ? parseInt(process.env.POSTGRES_PORT)
-    : 25060,
+  port: process.env.POSTGRES_PORT ? parseInt(process.env.POSTGRES_PORT) : 25060,
   // if connecting to local database, do NOT enable SSL. Otherwise, do enable SSL.
   ssl: process.env.LOCAL_DB ? undefined : { rejectUnauthorized: false },
   max: 10, // max number of clients in the pool
@@ -78,10 +76,7 @@ async function backfill_owners() {
      SET 
        owner = $1
      WHERE id = $2`,
-      [
-        positionFromChain.owner,
-        position.id,
-      ],
+      [positionFromChain.owner, position.id],
     );
 
     console.log(`Updated position ${position.id}`);

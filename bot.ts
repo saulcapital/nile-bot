@@ -17,6 +17,14 @@ import { Token } from "@uniswap/sdk-core";
 import { ethers } from "ethers";
 
 const bot = new Bot(process.env.BOT_KEY || "");
+const API_URLS: Record<string, string> = {
+  nile: "https://nile-api-production.up.railway.app/mixed-pairs",
+  nuri: "https://nuri-api-production.up.railway.app/mixed-pairs",
+  ra: "https://ra-api-production.up.railway.app/mixed-pairs",
+  cleo: "https://cleopatra-api-production.up.railway.app/mixed-pairs",
+  pharaoh: "https://pharaoh-api-production.up.railway.app/mixed-pairs",
+  ramses: "https://api-v2-production-a6e6.up.railway.app/mixed-pairs",
+};
 
 bot.command("start", (ctx) =>
   ctx.reply(
@@ -214,6 +222,20 @@ bot.command("pools", async (ctx) => {
     await ctx.reply("You are not tracking any pools.");
   } else {
     let response = "";
+    const apr_responses = {};
+    const uniqueExchanges = [
+      ...new Set(trackedPools.map((pool) => pool.exchange)),
+    ];
+    const urlsToFetch = [];
+    for (const exchange of uniqueExchanges) {
+      const apiUrl = API_URLS[exchange];
+      urlsToFetch.push(apiUrl);
+    }
+    const fetchPromises = urlsToFetch.map((url) =>
+      fetch(url).then((res) => res.json()),
+    );
+    const results = await Promise.all(fetchPromises);
+
     for (const pool of trackedPools) {
       const poolInfo = await getPoolSlot0AndLiquidity(
         pool.token0,
@@ -244,7 +266,7 @@ bot.command("pools", async (ctx) => {
       });
       const { amount0, amount1 } = position.mintAmounts;
 
-      response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}) from ${pool.owner.substring(0, 6) + '...' + pool.owner.slice(-4)}, ${inRangeText}\n`;
+      response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
       response += `    https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
     }
     const username = ctx.message?.from.username;

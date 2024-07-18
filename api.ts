@@ -254,7 +254,26 @@ export const removePositionFromDatabase = async (
   );
 };
 
-export const getUserTrackedPools = async (tgId: string) => {
+export const getUserTrackedPools = async (
+  tgId: string,
+): Promise<
+  Array<{
+    position_id: number;
+    in_range: boolean;
+    exchange: string;
+    token0: string;
+    token1: string;
+    token0symbol: string;
+    token1symbol: string;
+    fee: number;
+    ticklower: number;
+    tickupper: number;
+    positionliquidity: string;
+    token0decimals: number;
+    token1decimals: number;
+    owner: string;
+  }>
+> => {
   const result = await pool.query(
     `SELECT position_id, in_range, exchange, token0, token1, token0symbol, token1symbol, fee, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals, owner FROM positions WHERE tg_id = $1 AND burned IS FALSE`,
     [tgId],
