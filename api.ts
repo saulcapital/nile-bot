@@ -132,9 +132,10 @@ export const insertPositionIntoDatabase = async (
   token0Symbol: string,
   token1Symbol: string,
   tickLower: number,
-  tickUpper: number
+  tickUpper: number,
+  positionLiquidity: string
 ) => {
-  await pool.query(`INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [
+  await pool.query(`INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper, positionLiquidity) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`, [
     tgId,
     username,
     positionId,
@@ -147,7 +148,8 @@ export const insertPositionIntoDatabase = async (
     token0Symbol,
     token1Symbol,
     tickLower,
-    tickUpper
+    tickUpper,
+    positionLiquidity
   ]);
 };
 

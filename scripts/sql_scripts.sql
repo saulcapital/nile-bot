@@ -29,3 +29,6 @@ ADD COLUMN token1Symbol text;
 ALTER TABLE positions
 ADD COLUMN tickLower integer,
 ADD COLUMN tickUpper integer;
+
+ALTER TABLE positions
+ADD COLUMN positionLiquidity text;
