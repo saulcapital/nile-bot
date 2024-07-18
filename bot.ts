@@ -225,8 +225,8 @@ bot.command("pools", async (ctx) => {
       const currentTick = Number(poolInfo!.slot0[1]);
       const sqrtRatiox96 = poolInfo!.slot0[0].toString();
       // I believe chainId can be anything when instantiating Tokens
-      const token0 = new Token(1, pool.token0, 18);
-      const token1 = new Token(1, pool.token1, 18);
+      const token0 = new Token(1, pool.token0, pool.token0decimals);
+      const token1 = new Token(1, pool.token1, pool.token1decimals);
       const position = new Position({
         pool: new Pool(
           token0,
@@ -242,7 +242,7 @@ bot.command("pools", async (ctx) => {
       });
       const { amount0, amount1 } = position.mintAmounts;
 
-      response += `- ${pool.token0symbol} (${ethers.formatEther(JSBI.toNumber(amount0).toString())})/${pool.token1symbol} (${ethers.formatEther(JSBI.toNumber(amount1).toString())}) on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
+      response += `- ${pool.token0symbol} (${ethers.formatUnits(JSBI.toNumber(amount0).toString(), pool.token0decimals)})/${pool.token1symbol} (${ethers.formatUnits(JSBI.toNumber(amount1).toString(), pool.token1decimals)}) on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
     }
     const username = ctx.message?.from.username;
     console.log(
