@@ -11,6 +11,10 @@ import {
   removeAllPositionsFromDatabase,
   getUserTrackedPools
 } from "./api";
+import {Pool, Position} from "ramsesexchange-v3-sdk";
+import JSBI from "jsbi";
+import {Token} from "@uniswap/sdk-core";
+import {ethers} from "ethers";
 
 const bot = new Bot(process.env.BOT_KEY || "");
 
@@ -185,7 +189,22 @@ bot.command("pools", async (ctx) => {
     for (const pool of trackedPools) {
       const poolInfo = await getPoolSlot0AndLiquidity(pool.token0, pool.token1, pool.fee, pool.exchange);
       const inRangeText = pool.in_range ? "In Range" : "Out of Range";
-      response += `- ${pool.token0symbol}/${pool.token1symbol} on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
+
+      const poolLiquidity = poolInfo!.liquidity.toString();
+      const currentTick = Number(poolInfo!.slot0[1]);
+      const sqrtRatiox96 = poolInfo!.slot0[0].toString();
+      // I believe chainId can be anything when instantiating Tokens
+      const token0 = new Token(1, pool.token0, 18);
+      const token1 = new Token(1, pool.token1, 18);
+      const position = new Position({
+        pool: new Pool(token0, token1, pool.fee, JSBI.BigInt(sqrtRatiox96), poolLiquidity, currentTick),
+        liquidity: JSBI.BigInt(pool.positionliquidity),
+        tickLower: pool.ticklower,
+        tickUpper: pool.tickupper
+      });
+      const { amount0, amount1 } = position.mintAmounts;
+
+      response += `- ${pool.token0symbol} (${ethers.formatEther(JSBI.toNumber(amount0).toString())})/${pool.token1symbol} (${ethers.formatEther(JSBI.toNumber(amount1).toString())}) on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
     }
     const username = ctx.message?.from.username;
     console.log(`${username} just called /pools on ${(new Date()).toLocaleString()}`);
