@@ -229,7 +229,7 @@ bot.command("pools", async (ctx) => {
     const urlsToFetch = [];
     for (const exchange of uniqueExchanges) {
       const apiUrl = API_URLS[exchange];
-      urlsToFetch.push({apiUrl, exchange});
+      urlsToFetch.push({ apiUrl, exchange });
     }
     const fetchPromises = urlsToFetch.map(async (url) => {
       const res = await fetch(url.apiUrl);
@@ -268,15 +268,18 @@ bot.command("pools", async (ctx) => {
       });
       const { amount0, amount1 } = position.mintAmounts;
 
-      const apiResult = apiResults.find(x => x.exchange == pool.exchange);
+      const apiResult = apiResults.find((x) => x.exchange == pool.exchange);
       if (!apiResult) {
-        await ctx.reply('Error: There was no apiResult');
+        await ctx.reply("Error: There was no apiResult");
         return;
       }
-      const pair = apiResult.data.pairs.find((x: { id: string }) => x.id.toLowerCase() == poolInfo!.poolAddress.toLowerCase());
-      console.log(pair);
+      const pair = apiResult.data.pairs.find(
+        (x: { id: string }) =>
+          x.id.toLowerCase() == poolInfo!.poolAddress.toLowerCase(),
+      );
+      const totalApr: number = pair.lpApr + pair.feeApr;
 
-      response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
+      response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText} (${Math.round(totalApr)}% APR)\n`;
       response += `    https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
     }
     const username = ctx.message?.from.username;
