@@ -35,8 +35,8 @@ const pool = new PgPool({
   max: 10, // max number of clients in the pool
 });
 
-// an in memory mapping of token addresses -> symbols
-const tokenSymbols: Record<string, string> = {};
+// an in memory mapping of token addresses -> {symbol: string, decimals: number}
+const tokenSymbols: Record<string, { symbol: string; decimals: number }> = {};
 
 export const getPositionFromChain = async (
   positionId: number,
@@ -53,10 +53,14 @@ export const getPositionFromChain = async (
   };
   token0Symbol?: string;
   token1Symbol?: string;
+  token0Decimals?: number;
+  token1Decimals?: number;
 }> => {
   let position;
   let token0Symbol;
   let token1Symbol;
+  let token0Decimals;
+  let token1Decimals;
   try {
     const nfpm = nfpmContract(exchange);
     position = await nfpm.positions(positionId);
@@ -68,7 +72,8 @@ export const getPositionFromChain = async (
         provider(exchange),
       );
       token0Symbol = await token0Contract.symbol();
-      tokenSymbols[position.token0] = token0Symbol;
+      token0Decimals = await token0Contract.decimals();
+      tokenSymbols[position.token0] = {symbol: token0Symbol, decimals: token0Decimals};
       console.log(`Stored symbol ${token0Symbol} on ${exchange}`);
     }
     if (!(position.token1 in tokenSymbols)) {
@@ -78,7 +83,8 @@ export const getPositionFromChain = async (
         provider(exchange),
       );
       token1Symbol = await token1Contract.symbol();
-      tokenSymbols[position.token1] = token1Symbol;
+      token1Decimals = await token1Contract.decimals();
+      tokenSymbols[position.token1] = {symbol: token1Symbol, decimals: token1Decimals};
       console.log(`Stored symbol ${token1Symbol} on ${exchange}`);
     }
   } catch (e) {
@@ -93,8 +99,10 @@ export const getPositionFromChain = async (
   return {
     status: "success",
     position,
-    token0Symbol: tokenSymbols[position.token0],
-    token1Symbol: tokenSymbols[position.token1],
+    token0Symbol: tokenSymbols[position.token0].symbol,
+    token1Symbol: tokenSymbols[position.token1].symbol,
+    token0Decimals: tokenSymbols[position.token0].decimals,
+    token1Decimals: tokenSymbols[position.token1].decimals,
   };
 };
 
@@ -176,9 +184,11 @@ export const insertPositionIntoDatabase = async (
   tickLower: number,
   tickUpper: number,
   positionLiquidity: string,
+  token0Decimals: number,
+  token1Decimals: number,
 ) => {
   await pool.query(
-    `INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper, positionLiquidity) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+    `INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
     [
       tgId,
       username,
@@ -194,6 +204,8 @@ export const insertPositionIntoDatabase = async (
       tickLower,
       tickUpper,
       positionLiquidity,
+      token0Decimals,
+      token1Decimals,
     ],
   );
 };
