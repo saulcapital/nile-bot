@@ -278,7 +278,7 @@ bot.command("help", async (ctx) => {
 bot.catch((err) => {
   const ctx = err.ctx;
   console.error(
-    `Error while handling update ${ctx.update.update_id}: ${new Date().toISOString()} ${ctx.from?.username}`,
+    `Error while handling update ${ctx.update.update_id}: ${new Date().toISOString()} ${ctx.from?.username}. The message was: "${ctx.message?.text}"`,
   );
   const e = err.error;
   console.error("Error:", e);
