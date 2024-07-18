@@ -1,10 +1,9 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 import { Pool as PgPool } from "pg";
+import { getPositionFromChain } from "../api";
 
 async function main() {
-  console.log(__dirname + "/.env");
-  console.log("process.env.POSTGRES_PORT", process.env.POSTGRES_PORT);
   const pool = new PgPool({
     user: process.env.POSTGRES_USER,
     host: process.env.POSTGRES_HOST,
@@ -21,7 +20,44 @@ async function main() {
     `SELECT id, position_id, exchange FROM positions WHERE burned IS FALSE`,
   );
   const positionsToBackfill = result.rows;
-  console.log(positionsToBackfill);
+  for (const position of positionsToBackfill) {
+    const positionFromChain = await getPositionFromChain(
+      position.position_id,
+      position.exchange,
+    );
+
+    // Update the position in the database
+    await pool.query(
+      `UPDATE positions 
+     SET 
+       token0 = $1,
+       token1 = $2,
+       fee = $3,
+       tickLower = $4,
+       tickUpper = $5,
+       positionLiquidity = $6,
+       token0Decimals = $7,
+       token1Decimals = $8,
+       token0Symbol = $9,
+       token1Symbol = $10
+     WHERE id = $11`,
+      [
+        positionFromChain.position!.token0,
+        positionFromChain.position!.token1,
+        positionFromChain.position!.fee,
+        positionFromChain.position!.tickLower,
+        positionFromChain.position!.tickUpper,
+        positionFromChain.position!.liquidity,
+        positionFromChain.token0Decimals,
+        positionFromChain.token1Decimals,
+        positionFromChain.token0Symbol,
+        positionFromChain.token1Symbol,
+        position.id,
+      ],
+    );
+
+    console.log(`Updated position ${position.id}`);
+  }
 }
 
 main()
