@@ -125,6 +125,7 @@ export const getPoolSlot0AndLiquidity = async (
 ): Promise<null | {
   slot0: [number, number, number, number, number, number, number, boolean];
   liquidity: number;
+  poolAddress: string;
 }> => {
   const tokenA = new Token(CHAIN_IDS[exchange], token0, 18);
   const tokenB = new Token(CHAIN_IDS[exchange], token1, 18);
@@ -149,7 +150,7 @@ export const getPoolSlot0AndLiquidity = async (
     console.log(`Error with getPoolSlot0: ${e}`);
     return null;
   }
-  return { slot0, liquidity };
+  return { slot0, liquidity, poolAddress };
 };
 
 export const getPositionsFromDatabase = async (
