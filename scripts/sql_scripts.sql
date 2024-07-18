@@ -25,3 +25,7 @@ ALTER COLUMN position_id DROP NOT NULL;
 ALTER TABLE positions
 ADD COLUMN token0Symbol text,
 ADD COLUMN token1Symbol text;
+
+ALTER TABLE positions
+ADD COLUMN tickLower integer,
+ADD COLUMN tickUpper integer;

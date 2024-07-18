@@ -83,7 +83,9 @@ bot.command("track", async (ctx) => {
         onChainPosition.position!.token1,
         onChainPosition.position!.fee,
         onChainPosition.token0Symbol!,
-        onChainPosition.token1Symbol!
+        onChainPosition.token1Symbol!,
+        onChainPosition.position!.tickLower,
+        onChainPosition.position!.tickUpper
       );
       await ctx.reply(
         `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId}. It is currently ${inRange ? "in range." : "out of range."}`,
@@ -102,7 +104,9 @@ bot.command("track", async (ctx) => {
           onChainPosition.position!.token1,
           onChainPosition.position!.fee,
           onChainPosition.token0Symbol!,
-          onChainPosition.token1Symbol!
+          onChainPosition.token1Symbol!,
+          onChainPosition.position!.tickLower,
+          onChainPosition.position!.tickUpper
         );
         await ctx.reply(
           `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for you. It is currently ${inRange ? "in range." : "out of range."}`,
@@ -177,6 +181,7 @@ bot.command("pools", async (ctx) => {
   } else {
     let response = "You are tracking the following pools:\n";
     for (const pool of trackedPools) {
+      const poolInfo = await getPoolSlot0AndLiquidity(pool.token0, pool.token1, pool.fee, pool.exchange);
       const inRangeText = pool.in_range ? "In Range" : "Out of Range";
       response += `- ${pool.token0symbol}/${pool.token1symbol} on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
     }

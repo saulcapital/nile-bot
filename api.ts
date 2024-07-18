@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import NonFungiblePositionManager from "./abi/NonFungiblePositionManager.json";
 import ClPool from "./abi/ClPool.json";
 import ERC20 from "./abi/ERC20.json";
-import { Pool } from "@uniswap/v3-sdk";
+import { Pool, Position } from 'ramsesexchange-v3-sdk';
 import { Token } from "@uniswap/sdk-core";
 import { Pool as PgPool } from "pg";
 import {
@@ -130,9 +130,11 @@ export const insertPositionIntoDatabase = async (
   token1: string,
   fee: number,
   token0Symbol: string,
-  token1Symbol: string
+  token1Symbol: string,
+  tickLower: number,
+  tickUpper: number
 ) => {
-  await pool.query(`INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [
+  await pool.query(`INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`, [
     tgId,
     username,
     positionId,
@@ -143,7 +145,9 @@ export const insertPositionIntoDatabase = async (
     token1,
     fee,
     token0Symbol,
-    token1Symbol
+    token1Symbol,
+    tickLower,
+    tickUpper
   ]);
 };
 
@@ -178,7 +182,7 @@ export const removePositionFromDatabase = async (
 
 export const getUserTrackedPools = async (tgId: string) => {
   const result = await pool.query(
-    `SELECT position_id, in_range, exchange, token0symbol, token1symbol FROM positions WHERE tg_id = $1 AND burned IS FALSE`,
+    `SELECT position_id, in_range, exchange, token0, token1, token0symbol, token1symbol FROM positions WHERE tg_id = $1 AND burned IS FALSE`,
     [tgId]
   );
   return result.rows;
