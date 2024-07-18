@@ -211,7 +211,7 @@ bot.command("pools", async (ctx) => {
   if (trackedPools.length === 0) {
     await ctx.reply("You are not tracking any pools.");
   } else {
-    let response = "You are tracking the following pools:\n";
+    let response = "";
     for (const pool of trackedPools) {
       const poolInfo = await getPoolSlot0AndLiquidity(
         pool.token0,
@@ -219,7 +219,7 @@ bot.command("pools", async (ctx) => {
         pool.fee,
         pool.exchange,
       );
-      const inRangeText = pool.in_range ? "In Range" : "Out of Range";
+      const inRangeText = pool.in_range ? "In Range ✅" : "Out of Range 🚫";
 
       const poolLiquidity = poolInfo!.liquidity.toString();
       const currentTick = Number(poolInfo!.slot0[1]);
@@ -242,8 +242,8 @@ bot.command("pools", async (ctx) => {
       });
       const { amount0, amount1 } = position.mintAmounts;
 
-      response += `- ${pool.token0symbol} (${Number(ethers.formatUnits(JSBI.toNumber(amount0).toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(JSBI.toNumber(amount1).toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
-      response += `https://${pool.exchange}.${pool.exchange == 'nile' ? 'build' : 'exchange'}/liquidity/v2/${pool.position_id}\n`;
+      response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(JSBI.toNumber(amount0).toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(JSBI.toNumber(amount1).toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}), ${inRangeText}\n`;
+      response += `    https://${pool.exchange}.${pool.exchange == 'nile' ? 'build' : 'exchange'}/liquidity/v2/${pool.position_id}\n`;
     }
     const username = ctx.message?.from.username;
     console.log(
