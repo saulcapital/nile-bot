@@ -249,7 +249,7 @@ bot.command("pools", async (ctx) => {
     console.log(
       `${username} just called /pools on ${new Date().toLocaleString()}`,
     );
-    await ctx.reply(response);
+    await ctx.reply(response, { disable_web_page_preview: true } as any);
   }
 });
 
