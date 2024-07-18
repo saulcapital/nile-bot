@@ -73,7 +73,10 @@ export const getPositionFromChain = async (
       );
       token0Symbol = await token0Contract.symbol();
       token0Decimals = await token0Contract.decimals();
-      tokenSymbols[position.token0] = {symbol: token0Symbol, decimals: token0Decimals};
+      tokenSymbols[position.token0] = {
+        symbol: token0Symbol,
+        decimals: token0Decimals,
+      };
       console.log(`Stored symbol ${token0Symbol} on ${exchange}`);
     }
     if (!(position.token1 in tokenSymbols)) {
@@ -84,7 +87,10 @@ export const getPositionFromChain = async (
       );
       token1Symbol = await token1Contract.symbol();
       token1Decimals = await token1Contract.decimals();
-      tokenSymbols[position.token1] = {symbol: token1Symbol, decimals: token1Decimals};
+      tokenSymbols[position.token1] = {
+        symbol: token1Symbol,
+        decimals: token1Decimals,
+      };
       console.log(`Stored symbol ${token1Symbol} on ${exchange}`);
     }
   } catch (e) {
