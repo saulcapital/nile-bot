@@ -287,8 +287,9 @@ bot.command("pools", async (ctx) => {
             token1FromApi.price,
       );
 
-      response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText} $${totalValue.toLocaleString()}\n`;
-      response += `    https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
+      response += `${pool.exchange} (#${pool.position_id}): ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
+      response += `    - https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
+      response += `    - $${totalValue.toLocaleString()}\n`;
     }
     const username = ctx.message?.from.username;
     console.log(
