@@ -273,13 +273,21 @@ bot.command("pools", async (ctx) => {
         await ctx.reply("Error: There was no apiResult");
         return;
       }
-      const pair = apiResult.data.pairs.find(
-        (x: { id: string }) =>
-          x.id.toLowerCase() == poolInfo!.poolAddress.toLowerCase(),
+      const tokens = apiResult.data.tokens;
+      const token0FromApi = tokens.find(
+        (x: { id: string }) => x.id.toLowerCase() == pool.token0.toLowerCase(),
       );
-      const totalApr: number = pair.lpApr + pair.feeApr;
+      const token1FromApi = tokens.find(
+        (x: { id: string }) => x.id.toLowerCase() == pool.token1.toLowerCase(),
+      );
+      const totalValue = Math.round(
+        Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)) *
+          token0FromApi.price +
+          Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)) *
+            token1FromApi.price,
+      );
 
-      response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText} (${Math.round(totalApr)}% APR)\n`;
+      response += `• ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) on ${pool.exchange} (#${pool.position_id}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText} $${totalValue.toLocaleString()}\n`;
       response += `    https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
     }
     const username = ctx.message?.from.username;
