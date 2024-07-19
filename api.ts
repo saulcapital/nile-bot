@@ -15,7 +15,7 @@ import {
   FACTORIES,
 } from "./config";
 
-const provider = (exchange: string) =>
+export const provider = (exchange: string) =>
   new ethers.JsonRpcProvider(RPC_URLS[exchange]);
 const nfpmContract = (exchange: string) =>
   new ethers.Contract(

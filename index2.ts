@@ -1,10 +1,12 @@
-// import { Pool, Position } from '@uniswap/v3-sdk';
 import { Pool, Position } from "ramsesexchange-v3-sdk";
 import { Token } from "@uniswap/sdk-core";
 import JSBI from "jsbi";
 import { getPositionFromChain, getPoolSlot0AndLiquidity } from "./api";
+import GaugeV2 from "./abi/GaugeV2.json";
+import { ethers } from "ethers";
+import { provider } from "./api";
 
-async function main() {
+async function tryPositionMintAmounts() {
   const positionFromChain = await getPositionFromChain(125111, "nile");
   const chainId = 59144;
   const WETH = "0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f";
@@ -52,8 +54,18 @@ async function main() {
   });
 }
 
+async function estimateRewards() {
+  const gaugev2address = "0x7ebe6015ddb02fe34ba5dd15b289ed4935a5a824";
+  const gaugev2Contract = new ethers.Contract(
+    gaugev2address,
+    GaugeV2,
+    provider("nile"),
+  );
+  console.log(await gaugev2Contract.feeCollector());
+}
+
 // POSIX compliant apps should report an exit status
-main()
+estimateRewards()
   .then(() => {
     process.exit(0);
   })
