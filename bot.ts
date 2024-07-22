@@ -317,7 +317,7 @@ bot.command("pools", async (ctx) => {
 
       response += `<b>${pool.exchange} (#${pool.position_id})</b>: ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
       response += `    • https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
-      response += `    • <b>TVL :</b>$${totalValue.toLocaleString()} ${rewardsString ? ` / <b>Rewards</b>: ${rewardsString}` : ""}\n\n`;
+      response += `    • <b>TVL :</b>$${totalValue.toLocaleString()}${rewardsString ? ` / <b>Rewards</b>: ${rewardsString}` : ""}\n\n`;
     }
     const username = ctx.message?.from.username;
     console.log(
