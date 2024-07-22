@@ -56,12 +56,22 @@ async function tryPositionMintAmounts() {
 
 async function estimateRewards() {
   const gaugev2address = "0x7ebe6015ddb02fe34ba5dd15b289ed4935a5a824";
+  const nileProvider = provider("nile");
   const gaugev2Contract = new ethers.Contract(
     gaugev2address,
     GaugeV2,
-    provider("nile"),
+    nileProvider,
   );
-  console.log(await gaugev2Contract.feeCollector());
+  // console.log(await gaugev2Contract.feeCollector());
+  const tx = {
+    to: gaugev2address,
+    data: gaugev2Contract.interface.encodeFunctionData("getReward(uint256[],address[])", [
+      ["124114"], ["0xAAAac83751090C6ea42379626435f805DDF54DC8"],
+    ]),
+    from: "0xEF330d6F0B4375c39D8eD3d0D690a5B69e9EcD0c"
+  };
+  const txResponse = await nileProvider.call(tx);
+  console.log(txResponse);
 }
 
 // POSIX compliant apps should report an exit status
