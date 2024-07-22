@@ -231,7 +231,6 @@ bot.command("pools", async (ctx) => {
     await ctx.reply("You are not tracking any pools.");
   } else {
     let response = "";
-    const apr_responses = {};
     const uniqueExchanges = [
       ...new Set(trackedPools.map((pool) => pool.exchange)),
     ];
