@@ -40,15 +40,15 @@ const GAUGE_FACTORIES: Record<string, string> = {
   nile: "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7",
   nuri: "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7",
   cleo: "0xAAA11500dDdB2B67a90d1a154dfB7eaBB518EAE6",
-  ramses: '0xAA2fBD0C9393964aF7c66C1513e44A8CAAae4FDA',
-  pharaoh: "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7"
+  ramses: "0xAA2fBD0C9393964aF7c66C1513e44A8CAAae4FDA",
+  pharaoh: "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7",
 };
 export const REWARD_TOKENS: Record<string, string> = {
   nile: "0xAAAac83751090C6ea42379626435f805DDF54DC8",
   nuri: "0xaaae8378809bb8815c08d3c59eb0c7d1529ad769",
   cleo: "0xc1e0c8c30f251a07a894609616580ad2ceb547f2",
   ramses: "0xaaa6c1e32c55a7bfa8066a6fae9b42650f262418",
-  pharaoh: "0xAAAB9D12A30504559b0C5a9A5977fEE4A6081c6b"
+  pharaoh: "0xAAAB9D12A30504559b0C5a9A5977fEE4A6081c6b",
 };
 
 // an in memory mapping of token addresses -> {symbol: string, decimals: number}

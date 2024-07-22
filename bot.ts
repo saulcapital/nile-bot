@@ -218,6 +218,85 @@ bot.command("untrack", async (ctx) => {
   }
 });
 
+const getTextResponseFromPool = async (
+  pool: any,
+  apiResults: any,
+  ctx: any,
+) => {
+  const poolInfo = await getPoolSlot0AndLiquidity(
+    pool.token0,
+    pool.token1,
+    pool.fee,
+    pool.exchange,
+  );
+  const inRangeText = pool.in_range ? "In Range ✅" : "Out of Range 🚫";
+
+  const poolLiquidity = poolInfo!.liquidity.toString();
+  const currentTick = Number(poolInfo!.slot0[1]);
+  const sqrtRatiox96 = poolInfo!.slot0[0].toString();
+
+  // Get the mintAmounts
+  // I believe chainId can be anything when instantiating Tokens
+  const token0 = new Token(1, pool.token0, pool.token0decimals);
+  const token1 = new Token(1, pool.token1, pool.token1decimals);
+  const position = new Position({
+    pool: new Pool(
+      token0,
+      token1,
+      pool.fee,
+      JSBI.BigInt(sqrtRatiox96),
+      poolLiquidity,
+      currentTick,
+    ),
+    liquidity: JSBI.BigInt(pool.positionliquidity),
+    tickLower: pool.ticklower,
+    tickUpper: pool.tickupper,
+  });
+  const { amount0, amount1 } = position.mintAmounts;
+
+  const apiResult = apiResults.find((x: any) => x.exchange == pool.exchange);
+  if (!apiResult) {
+    await ctx.reply("Error: There was no apiResult");
+    return;
+  }
+  const tokens = apiResult.data.tokens;
+  const token0FromApi = tokens.find(
+    (x: { id: string }) => x.id.toLowerCase() == pool.token0.toLowerCase(),
+  );
+  const token1FromApi = tokens.find(
+    (x: { id: string }) => x.id.toLowerCase() == pool.token1.toLowerCase(),
+  );
+  const totalValue = Math.round(
+    Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)) *
+      token0FromApi.price +
+      Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)) *
+        token1FromApi.price,
+  );
+
+  let rewardsString;
+  // Get number of reward tokens
+  if (pool.exchange != "ra") {
+    let numRewards = await getPositionRewards(
+      poolInfo!.poolAddress,
+      pool.exchange,
+      pool.position_id,
+    );
+    numRewards = Number(ethers.formatEther(numRewards));
+    const rewardTokenFromApi = tokens.find(
+      (x: any) =>
+        x.id.toLowerCase() == REWARD_TOKENS[pool.exchange].toLowerCase(),
+    );
+    const rewardsValue = numRewards * rewardTokenFromApi.price;
+    rewardsString = `${numRewards.toFixed(1)} ${REWARD_TOKEN_NAMES[pool.exchange]} ($${rewardsValue.toFixed(2)})`;
+  }
+
+  let response = "";
+  response += `<b>${pool.exchange} (#${pool.position_id})</b>: ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
+  response += `    • https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
+  response += `    • <b>TVL :</b>$${totalValue.toLocaleString()}${rewardsString ? ` / <b>Rewards</b>: ${rewardsString}` : ""}\n\n`;
+  return response;
+};
+
 bot.command("pools", async (ctx) => {
   const userId = ctx.message?.from.id;
   if (!userId) {
@@ -246,78 +325,10 @@ bot.command("pools", async (ctx) => {
     });
     const apiResults = await Promise.all(fetchPromises);
 
-    for (const pool of trackedPools) {
-      const poolInfo = await getPoolSlot0AndLiquidity(
-        pool.token0,
-        pool.token1,
-        pool.fee,
-        pool.exchange,
-      );
-      const inRangeText = pool.in_range ? "In Range ✅" : "Out of Range 🚫";
-
-      const poolLiquidity = poolInfo!.liquidity.toString();
-      const currentTick = Number(poolInfo!.slot0[1]);
-      const sqrtRatiox96 = poolInfo!.slot0[0].toString();
-
-      // Get the mintAmounts
-      // I believe chainId can be anything when instantiating Tokens
-      const token0 = new Token(1, pool.token0, pool.token0decimals);
-      const token1 = new Token(1, pool.token1, pool.token1decimals);
-      const position = new Position({
-        pool: new Pool(
-          token0,
-          token1,
-          pool.fee,
-          JSBI.BigInt(sqrtRatiox96),
-          poolLiquidity,
-          currentTick,
-        ),
-        liquidity: JSBI.BigInt(pool.positionliquidity),
-        tickLower: pool.ticklower,
-        tickUpper: pool.tickupper,
-      });
-      const { amount0, amount1 } = position.mintAmounts;
-
-      const apiResult = apiResults.find((x) => x.exchange == pool.exchange);
-      if (!apiResult) {
-        await ctx.reply("Error: There was no apiResult");
-        return;
-      }
-      const tokens = apiResult.data.tokens;
-      const token0FromApi = tokens.find(
-        (x: { id: string }) => x.id.toLowerCase() == pool.token0.toLowerCase(),
-      );
-      const token1FromApi = tokens.find(
-        (x: { id: string }) => x.id.toLowerCase() == pool.token1.toLowerCase(),
-      );
-      const totalValue = Math.round(
-        Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)) *
-          token0FromApi.price +
-          Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)) *
-            token1FromApi.price,
-      );
-
-      let rewardsString;
-      // Get number of reward tokens
-      if (pool.exchange != "ra") {
-        let numRewards = await getPositionRewards(
-          poolInfo!.poolAddress,
-          pool.exchange,
-          pool.position_id,
-        );
-        numRewards = Number(ethers.formatEther(numRewards));
-        const rewardTokenFromApi = tokens.find(
-          (x: any) =>
-            x.id.toLowerCase() == REWARD_TOKENS[pool.exchange].toLowerCase(),
-        );
-        const rewardsValue = numRewards * rewardTokenFromApi.price;
-        rewardsString = `${numRewards.toFixed(1)} ${REWARD_TOKEN_NAMES[pool.exchange]} ($${rewardsValue.toFixed(2)})`;
-      }
-
-      response += `<b>${pool.exchange} (#${pool.position_id})</b>: ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
-      response += `    • https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
-      response += `    • <b>TVL :</b>$${totalValue.toLocaleString()}${rewardsString ? ` / <b>Rewards</b>: ${rewardsString}` : ""}\n\n`;
-    }
+    let responses = await Promise.all(
+      trackedPools.map((x) => getTextResponseFromPool(x, apiResults, ctx)),
+    );
+    response = responses.join("");
     const username = ctx.message?.from.username;
     console.log(
       `${username} just called /pools on ${new Date().toLocaleString()}`,
