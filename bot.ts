@@ -10,7 +10,8 @@ import {
   removePositionFromDatabase,
   removeAllPositionsFromDatabase,
   getUserTrackedPools,
-  getPositionRewards
+  getPositionRewards,
+  REWARD_TOKENS,
 } from "./api";
 import { Pool, Position } from "ramsesexchange-v3-sdk";
 import JSBI from "jsbi";
@@ -25,6 +26,13 @@ const API_URLS: Record<string, string> = {
   cleo: "https://cleopatra-api-production.up.railway.app/mixed-pairs",
   pharaoh: "https://pharaoh-api-production.up.railway.app/mixed-pairs",
   ramses: "https://api-v2-production-a6e6.up.railway.app/mixed-pairs",
+};
+const REWARD_TOKEN_NAMES: Record<string, string> = {
+  nile: "NILE",
+  nuri: "NURI",
+  ramses: "RAM",
+  cleo: "CLEO",
+  pharaoh: "PHAR",
 };
 
 bot.command("start", (ctx) =>
@@ -271,10 +279,6 @@ bot.command("pools", async (ctx) => {
       });
       const { amount0, amount1 } = position.mintAmounts;
 
-      // Get number of reward tokens
-      let numRewards = await getPositionRewards(poolInfo!.poolAddress, pool.exchange, pool.position_id);
-      numRewards = Number(ethers.formatEther(numRewards)).toFixed(1);
-
       const apiResult = apiResults.find((x) => x.exchange == pool.exchange);
       if (!apiResult) {
         await ctx.reply("Error: There was no apiResult");
@@ -294,9 +298,26 @@ bot.command("pools", async (ctx) => {
             token1FromApi.price,
       );
 
+      let rewardsString;
+      // Get number of reward tokens
+      if (pool.exchange != "ra") {
+        let numRewards = await getPositionRewards(
+          poolInfo!.poolAddress,
+          pool.exchange,
+          pool.position_id,
+        );
+        numRewards = Number(ethers.formatEther(numRewards));
+        const rewardTokenFromApi = tokens.find(
+          (x: any) =>
+            x.id.toLowerCase() == REWARD_TOKENS[pool.exchange].toLowerCase(),
+        );
+        const rewardsValue = numRewards * rewardTokenFromApi.price;
+        rewardsString = `${numRewards.toFixed(1)} ${REWARD_TOKEN_NAMES[pool.exchange]} ($${rewardsValue.toFixed(2)})`;
+      }
+
       response += `<b>${pool.exchange} (#${pool.position_id})</b>: ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
       response += `    - https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
-      response += `    - $${totalValue.toLocaleString()}, ${numRewards} rewards\n`;
+      response += `    - $${totalValue.toLocaleString()}, ${rewardsString ? `${rewardsString}` : ""}\n`;
     }
     const username = ctx.message?.from.username;
     console.log(

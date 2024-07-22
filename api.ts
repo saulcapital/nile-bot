@@ -40,7 +40,7 @@ const GAUGE_FACTORIES: Record<string, string> = {
   nile: "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7",
   nuri: "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7",
 };
-const REWARD_TOKENS: Record<string, string> = {
+export const REWARD_TOKENS: Record<string, string> = {
   nile: "0xAAAac83751090C6ea42379626435f805DDF54DC8",
   nuri: "0xaaae8378809bb8815c08d3c59eb0c7d1529ad769",
 };
@@ -175,7 +175,6 @@ export const getPositionRewards = async (
     correctProvider,
   );
   const gaugeAddress = await clGaugeFactoryContract.getGauge(poolAddress);
-  console.log(gaugeAddress);
   const gaugev2Contract = new ethers.Contract(
     gaugeAddress,
     GaugeV2,
