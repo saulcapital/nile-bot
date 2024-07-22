@@ -4,19 +4,38 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "previousAdmin",
+        "name": "oldFeeCollector",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newFeeCollector",
+        "type": "address"
+      }
+    ],
+    "name": "FeeCollectorChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "pool",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "address",
-        "name": "newAdmin",
+        "name": "gauge",
         "type": "address"
       }
     ],
-    "name": "AdminChanged",
+    "name": "GaugeCreated",
     "type": "event"
   },
   {
@@ -25,11 +44,17 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "beacon",
+        "name": "oldImplementation",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newImplementation",
         "type": "address"
       }
     ],
-    "name": "BeaconUpgraded",
+    "name": "ImplementationChanged",
     "type": "event"
   },
   {
@@ -38,82 +63,116 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "implementation",
+        "name": "oldOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
         "type": "address"
       }
     ],
-    "name": "Upgraded",
+    "name": "OwnerChanged",
     "type": "event"
   },
-  { "stateMutability": "payable", "type": "fallback" },
   {
-    "inputs": [],
-    "name": "admin",
+    "inputs": [
+      { "internalType": "address", "name": "pool", "type": "address" }
+    ],
+    "name": "createGauge",
     "outputs": [
-      { "internalType": "address", "name": "admin_", "type": "address" }
+      { "internalType": "address", "name": "gauge", "type": "address" }
     ],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "newAdmin", "type": "address" }
-    ],
-    "name": "changeAdmin",
-    "outputs": [],
-    "stateMutability": "payable",
+    "inputs": [],
+    "name": "feeCollector",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "getGauge",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "implementation",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "implementation_",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "payable",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_logic", "type": "address" },
-      { "internalType": "address", "name": "admin_", "type": "address" },
-      { "internalType": "bytes", "name": "_data", "type": "bytes" }
+      { "internalType": "address", "name": "_nfpManager", "type": "address" },
+      { "internalType": "address", "name": "_votingEscrow", "type": "address" },
+      { "internalType": "address", "name": "_voter", "type": "address" },
+      { "internalType": "address", "name": "_feeCollector", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "_implementation",
+        "type": "address"
+      }
     ],
     "name": "initialize",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nfpManager",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "newImplementation",
+        "name": "_implementation",
         "type": "address"
       }
     ],
-    "name": "upgradeTo",
+    "name": "setImplementation",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "newImplementation",
-        "type": "address"
-      },
-      { "internalType": "bytes", "name": "data", "type": "bytes" }
+      { "internalType": "address", "name": "_owner", "type": "address" }
     ],
-    "name": "upgradeToAndCall",
+    "name": "setOwner",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
-  { "stateMutability": "payable", "type": "receive" }
+  {
+    "inputs": [],
+    "name": "voter",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "votingEscrow",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ]

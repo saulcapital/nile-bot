@@ -3,9 +3,9 @@ import { Token } from "@uniswap/sdk-core";
 import JSBI from "jsbi";
 import { getPositionFromChain, getPoolSlot0AndLiquidity } from "./api";
 import GaugeV2 from "./abi/GaugeV2.json";
+import ClGaugeFactory from "./abi/ClGaugeFactory.json";
 import { ethers } from "ethers";
 import { provider } from "./api";
-
 async function tryPositionMintAmounts() {
   const positionFromChain = await getPositionFromChain(125111, "nile");
   const chainId = 59144;
@@ -55,23 +55,36 @@ async function tryPositionMintAmounts() {
 }
 
 async function estimateRewards() {
-  const gaugev2address = "0x7ebe6015ddb02fe34ba5dd15b289ed4935a5a824";
+  // const gaugev2address = "0x7ebe6015ddb02fe34ba5dd15b289ed4935a5a824";
   const nileProvider = provider("nile");
-  const gaugev2Contract = new ethers.Contract(
-    gaugev2address,
-    GaugeV2,
+  // const gaugev2Contract = new ethers.Contract(
+  //   gaugev2address,
+  //   GaugeV2,
+  //   nileProvider,
+  // );
+  // const earned = await gaugev2Contract.earned(
+  //   "0xAAAac83751090C6ea42379626435f805DDF54DC8",
+  //   130814,
+  // );
+  // console.log(earned);
+  const pool = "0xce6f03c4f2d1f23ed1996c85b6ff047fb049b61f";
+  const clGaugeFactoryContract = new ethers.Contract(
+    "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7",
+    ClGaugeFactory,
     nileProvider,
   );
-  // console.log(await gaugev2Contract.feeCollector());
-  const tx = {
-    to: gaugev2address,
-    data: gaugev2Contract.interface.encodeFunctionData("getReward(uint256[],address[])", [
-      ["124114"], ["0xAAAac83751090C6ea42379626435f805DDF54DC8"],
-    ]),
-    from: "0xEF330d6F0B4375c39D8eD3d0D690a5B69e9EcD0c"
-  };
-  const txResponse = await nileProvider.call(tx);
-  console.log(txResponse);
+  const gaugeAddress = await clGaugeFactoryContract.getGauge(pool);
+  console.log(gaugeAddress);
+  const gaugev2Contract = new ethers.Contract(
+    gaugeAddress,
+    GaugeV2,
+    nileProvider
+  );
+  const earned = await gaugev2Contract.earned(
+    "0xAAAac83751090C6ea42379626435f805DDF54DC8",
+    130814
+  )
+  console.log(earned);
 }
 
 // POSIX compliant apps should report an exit status
