@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import NonFungiblePositionManager from "./abi/NonFungiblePositionManager.json";
 import ClPool from "./abi/ClPool.json";
 import ERC20 from "./abi/ERC20.json";
+import GaugeV2 from "./abi/GaugeV2.json";
+import ClGaugeFactory from "./abi/ClGaugeFactory.json";
 import { Pool, Position } from "ramsesexchange-v3-sdk";
 import { Token } from "@uniswap/sdk-core";
 import { Pool as PgPool } from "pg";
@@ -34,6 +36,14 @@ const pool = new PgPool({
   ssl: process.env.LOCAL_DB ? undefined : { rejectUnauthorized: false },
   max: 10, // max number of clients in the pool
 });
+const GAUGE_FACTORIES: Record<string, string> = {
+  nile: "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7",
+  nuri: "0xAAA2D4987EEd427Ba5E2c933EeFCD75C84b446B7",
+};
+const REWARD_TOKENS: Record<string, string> = {
+  nile: "0xAAAac83751090C6ea42379626435f805DDF54DC8",
+  nuri: "0xaaae8378809bb8815c08d3c59eb0c7d1529ad769",
+};
 
 // an in memory mapping of token addresses -> {symbol: string, decimals: number}
 const tokenSymbols: Record<string, { symbol: string; decimals: number }> = {};
@@ -151,6 +161,31 @@ export const getPoolSlot0AndLiquidity = async (
     return null;
   }
   return { slot0, liquidity, poolAddress };
+};
+
+export const getPositionRewards = async (
+  poolAddress: string,
+  exchange: string,
+  positionId: number,
+) => {
+  const correctProvider = provider(exchange);
+  const clGaugeFactoryContract = new ethers.Contract(
+    GAUGE_FACTORIES[exchange],
+    ClGaugeFactory,
+    correctProvider,
+  );
+  const gaugeAddress = await clGaugeFactoryContract.getGauge(poolAddress);
+  console.log(gaugeAddress);
+  const gaugev2Contract = new ethers.Contract(
+    gaugeAddress,
+    GaugeV2,
+    correctProvider,
+  );
+  const earned = await gaugev2Contract.earned(
+    REWARD_TOKENS[exchange],
+    positionId,
+  );
+  console.log(earned);
 };
 
 export const getPositionsFromDatabase = async (

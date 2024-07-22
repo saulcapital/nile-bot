@@ -78,12 +78,12 @@ async function estimateRewards() {
   const gaugev2Contract = new ethers.Contract(
     gaugeAddress,
     GaugeV2,
-    nileProvider
+    nileProvider,
   );
   const earned = await gaugev2Contract.earned(
     "0xAAAac83751090C6ea42379626435f805DDF54DC8",
-    130814
-  )
+    130814,
+  );
   console.log(earned);
 }
 
