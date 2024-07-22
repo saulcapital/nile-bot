@@ -185,7 +185,7 @@ export const getPositionRewards = async (
     REWARD_TOKENS[exchange],
     positionId,
   );
-  console.log(earned);
+  return earned;
 };
 
 export const getPositionsFromDatabase = async (

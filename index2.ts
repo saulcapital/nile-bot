@@ -1,11 +1,13 @@
 import { Pool, Position } from "ramsesexchange-v3-sdk";
 import { Token } from "@uniswap/sdk-core";
 import JSBI from "jsbi";
-import { getPositionFromChain, getPoolSlot0AndLiquidity } from "./api";
+import { getPositionFromChain, getPoolSlot0AndLiquidity, getPositionRewards } from "./api";
 import GaugeV2 from "./abi/GaugeV2.json";
 import ClGaugeFactory from "./abi/ClGaugeFactory.json";
 import { ethers } from "ethers";
 import { provider } from "./api";
+
+
 async function tryPositionMintAmounts() {
   const positionFromChain = await getPositionFromChain(125111, "nile");
   const chainId = 59144;
@@ -87,8 +89,12 @@ async function estimateRewards() {
   console.log(earned);
 }
 
+async function tryGetPositionRewards() {
+  console.log(await getPositionRewards('0x02efd69765a2f8df9797b13a046b7f080ad40cd7', 'nuri', 79639));
+}
+
 // POSIX compliant apps should report an exit status
-estimateRewards()
+tryGetPositionRewards()
   .then(() => {
     process.exit(0);
   })

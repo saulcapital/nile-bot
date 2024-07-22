@@ -10,6 +10,7 @@ import {
   removePositionFromDatabase,
   removeAllPositionsFromDatabase,
   getUserTrackedPools,
+  getPositionRewards
 } from "./api";
 import { Pool, Position } from "ramsesexchange-v3-sdk";
 import JSBI from "jsbi";
@@ -250,6 +251,8 @@ bot.command("pools", async (ctx) => {
       const poolLiquidity = poolInfo!.liquidity.toString();
       const currentTick = Number(poolInfo!.slot0[1]);
       const sqrtRatiox96 = poolInfo!.slot0[0].toString();
+
+      // Get the mintAmounts
       // I believe chainId can be anything when instantiating Tokens
       const token0 = new Token(1, pool.token0, pool.token0decimals);
       const token1 = new Token(1, pool.token1, pool.token1decimals);
@@ -267,6 +270,10 @@ bot.command("pools", async (ctx) => {
         tickUpper: pool.tickupper,
       });
       const { amount0, amount1 } = position.mintAmounts;
+
+      // Get number of reward tokens
+      let numRewards = await getPositionRewards(poolInfo!.poolAddress, pool.exchange, pool.position_id);
+      numRewards = Number(ethers.formatEther(numRewards)).toFixed(1);
 
       const apiResult = apiResults.find((x) => x.exchange == pool.exchange);
       if (!apiResult) {
@@ -289,7 +296,7 @@ bot.command("pools", async (ctx) => {
 
       response += `<b>${pool.exchange} (#${pool.position_id})</b>: ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
       response += `    - https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
-      response += `    - $${totalValue.toLocaleString()}\n`;
+      response += `    - $${totalValue.toLocaleString()}, ${numRewards} rewards\n`;
     }
     const username = ctx.message?.from.username;
     console.log(
