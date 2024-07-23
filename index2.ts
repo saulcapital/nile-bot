@@ -10,6 +10,7 @@ import GaugeV2 from "./abi/GaugeV2.json";
 import ClGaugeFactory from "./abi/ClGaugeFactory.json";
 import { ethers } from "ethers";
 import { provider } from "./api";
+import { computeAerodromeClPoolAddress } from "./helpers";
 
 async function tryPositionMintAmounts() {
   const positionFromChain = await getPositionFromChain(125111, "nile");
@@ -103,18 +104,32 @@ async function tryGetPositionRewards() {
 }
 
 async function tryAerodrome() {
-  const onChainPosition = await getPositionFromChain(250059, 'aerodrome');
+  const onChainPosition = await getPositionFromChain(250059, "aerodrome");
   const poolInfo = await getPoolSlot0AndLiquidity(
     onChainPosition.position!.token0,
     onChainPosition.position!.token1,
     onChainPosition.position!.fee,
-    'aerodrome',
+    "aerodrome",
   );
-  console.log({onChainPosition, poolInfo})
+  console.log({ onChainPosition, poolInfo });
+}
+
+async function getAerodromeAddress() {
+  const aerodromeProvider = provider("aerodrome");
+  const address = await computeAerodromeClPoolAddress(
+    "0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A",
+    [
+      "0x4200000000000000000000000000000000000006",
+      "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ],
+    100,
+    aerodromeProvider,
+  );
+  console.log(address);
 }
 
 // POSIX compliant apps should report an exit status
-tryAerodrome()
+getAerodromeAddress()
   .then(() => {
     process.exit(0);
   })
