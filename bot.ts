@@ -34,6 +34,8 @@ const REWARD_TOKEN_NAMES: Record<string, string> = {
   cleo: "CLEO",
   pharaoh: "PHAR",
 };
+// Include all Kingdom Exchanges except for 'ra', which is tokenless at the moment
+const KINGDOM_EXCHANGES_WITH_API = ['nile', 'nuri', 'ramses', 'cleo', 'pharaoh'];
 
 bot.command("start", (ctx) =>
   ctx.reply(
@@ -311,23 +313,26 @@ bot.command("pools", async (ctx) => {
     await ctx.reply("You are not tracking any pools.");
   } else {
     let response = "";
-    const uniqueExchanges = [
+    let uniqueKingdomExchanges = [
       ...new Set(trackedPools.map((pool) => pool.exchange)),
     ];
-    const urlsToFetch = [];
-    for (const exchange of uniqueExchanges) {
+    uniqueKingdomExchanges = uniqueKingdomExchanges.filter(x => KINGDOM_EXCHANGES_WITH_API.includes(x));
+
+    // At the moment, we only make API calls for kingdom exchanges
+    const kingdomUrlsToFetch = [];
+    for (const exchange of uniqueKingdomExchanges) {
       const apiUrl = API_URLS[exchange];
-      urlsToFetch.push({ apiUrl, exchange });
+      kingdomUrlsToFetch.push({ apiUrl, exchange });
     }
-    const fetchPromises = urlsToFetch.map(async (url) => {
+    const fetchPromises = kingdomUrlsToFetch.map(async (url) => {
       const res = await fetch(url.apiUrl);
       const data = await res.json();
       return { exchange: url.exchange, data };
     });
-    const apiResults = await Promise.all(fetchPromises);
+    const kingdomApiResults = await Promise.all(fetchPromises);
 
     let responses = await Promise.all(
-      trackedPools.map((x) => getTextResponseFromPool(x, apiResults, ctx)),
+      trackedPools.map((x) => getTextResponseFromPool(x, kingdomApiResults, ctx)),
     );
     response = responses.join("");
     const username = ctx.message?.from.username;
