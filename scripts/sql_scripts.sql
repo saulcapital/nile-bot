@@ -39,3 +39,6 @@ ADD COLUMN token1Decimals integer;
 
 ALTER TABLE positions
 ADD COLUMN owner text;
+
+ALTER TABLE positions
+ADD COLUMN tick_spacing integer;

@@ -73,6 +73,7 @@ type DatabasePosition = {
 const tokenSymbols: Record<string, { symbol: string; decimals: number }> = {};
 
 // get position data using NonFungiblePositionManager.positions() function
+// If it's an aerodrome position, it will have position[4], which is tickSpacing
 export const getPositionFromChain = async (
   positionId: number,
   exchange: string,
@@ -85,7 +86,7 @@ export const getPositionFromChain = async (
     token1: string;
     fee: number;
     liquidity: string;
-    4: number; // this is tickSpacing
+    4?: number; // this is tickSpacing IF exchange == 'aerodrome'
   };
   owner?: string;
   token0Symbol?: string;
@@ -274,9 +275,10 @@ export const insertPositionIntoDatabase = async (
   token0Decimals: number,
   token1Decimals: number,
   owner: string,
+  tick_spacing: number | null,
 ) => {
   await pool.query(
-    `INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals, owner) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+    `INSERT INTO positions (tg_id, username, position_id, burned, in_range, exchange, token0, token1, fee, token0Symbol, token1Symbol, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals, owner, tick_spacing) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
     [
       tgId,
       username,
@@ -295,6 +297,7 @@ export const insertPositionIntoDatabase = async (
       token0Decimals,
       token1Decimals,
       owner,
+      tick_spacing ? tick_spacing : null
     ],
   );
 };
