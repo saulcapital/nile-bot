@@ -102,8 +102,19 @@ async function tryGetPositionRewards() {
   );
 }
 
+async function tryAerodrome() {
+  const onChainPosition = await getPositionFromChain(250059, 'aerodrome');
+  const poolInfo = await getPoolSlot0AndLiquidity(
+    onChainPosition.position!.token0,
+    onChainPosition.position!.token1,
+    onChainPosition.position!.fee,
+    'aerodrome',
+  );
+  console.log({onChainPosition, poolInfo})
+}
+
 // POSIX compliant apps should report an exit status
-tryGetPositionRewards()
+tryAerodrome()
   .then(() => {
     process.exit(0);
   })
