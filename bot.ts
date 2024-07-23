@@ -17,6 +17,7 @@ import { Pool, Position } from "ramsesexchange-v3-sdk";
 import JSBI from "jsbi";
 import { Token } from "@uniswap/sdk-core";
 import { ethers } from "ethers";
+import { DatabasePosition } from "./api";
 
 const bot = new Bot(process.env.BOT_KEY || "");
 const API_URLS: Record<string, string> = {
@@ -35,7 +36,13 @@ const REWARD_TOKEN_NAMES: Record<string, string> = {
   pharaoh: "PHAR",
 };
 // Include all Kingdom Exchanges except for 'ra', which is tokenless at the moment
-const KINGDOM_EXCHANGES_WITH_API = ['nile', 'nuri', 'ramses', 'cleo', 'pharaoh'];
+const KINGDOM_EXCHANGES_WITH_API = [
+  "nile",
+  "nuri",
+  "ramses",
+  "cleo",
+  "pharaoh",
+];
 
 bot.command("start", (ctx) =>
   ctx.reply(
@@ -99,7 +106,7 @@ bot.command("track", async (ctx) => {
       onChainPosition.position!.token1,
       onChainPosition.position!.fee,
       exchange,
-      exchange == 'aerodrome' ? onChainPosition.position![4] : null
+      exchange == "aerodrome" ? onChainPosition.position![4] : null,
     );
     if (!poolInfo) {
       await ctx.reply("Error calling getPoolSlot0().");
@@ -126,7 +133,7 @@ bot.command("track", async (ctx) => {
       onChainPosition.token0Decimals!,
       onChainPosition.token1Decimals!,
       onChainPosition.owner!,
-      exchange == 'aerodrome' ? (onChainPosition.position?.[4] ?? null) : null
+      exchange == "aerodrome" ? onChainPosition.position?.[4] ?? null : null,
     );
     await ctx.reply(
       `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId}. It is currently ${inRange ? "in range." : "out of range."}`,
@@ -196,16 +203,16 @@ bot.command("untrack", async (ctx) => {
   }
 });
 
-const getTextResponseFromPool = async (
-  pool: any,
+const getTextResponseFromUserPosition = async (
+  pool: DatabasePosition,
   apiResults: any,
-  ctx: any,
 ) => {
   const poolInfo = await getPoolSlot0AndLiquidity(
     pool.token0,
     pool.token1,
     pool.fee,
     pool.exchange,
+    pool.tick_spacing,
   );
   const inRangeText = pool.in_range ? "In Range ✅" : "Out of Range 🚫";
 
@@ -250,9 +257,9 @@ const getTextResponseFromPool = async (
     );
     const totalValue = Math.round(
       Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)) *
-      token0FromApi.price +
-      Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)) *
-      token1FromApi.price,
+        token0FromApi.price +
+        Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)) *
+          token1FromApi.price,
     );
 
     let numRewards = await getPositionRewards(
@@ -289,7 +296,9 @@ bot.command("pools", async (ctx) => {
     let uniqueKingdomExchanges = [
       ...new Set(userPositions.map((pool) => pool.exchange)),
     ];
-    uniqueKingdomExchanges = uniqueKingdomExchanges.filter(x => KINGDOM_EXCHANGES_WITH_API.includes(x));
+    uniqueKingdomExchanges = uniqueKingdomExchanges.filter((x) =>
+      KINGDOM_EXCHANGES_WITH_API.includes(x),
+    );
 
     // At the moment, we only make API calls for kingdom exchanges
     const kingdomUrlsToFetch = [];
@@ -305,7 +314,9 @@ bot.command("pools", async (ctx) => {
     const kingdomApiResults = await Promise.all(fetchPromises);
 
     let responses = await Promise.all(
-      userPositions.map((x) => getTextResponseFromPool(x, kingdomApiResults, ctx)),
+      userPositions.map((userPosition) =>
+        getTextResponseFromUserPosition(userPosition, kingdomApiResults),
+      ),
     );
     response = responses.join("");
     const username = ctx.message?.from.username;

@@ -52,7 +52,7 @@ export const REWARD_TOKENS: Record<string, string> = {
   ramses: "0xaaa6c1e32c55a7bfa8066a6fae9b42650f262418",
   pharaoh: "0xAAAB9D12A30504559b0C5a9A5977fEE4A6081c6b",
 };
-type DatabasePosition = {
+export type DatabasePosition = {
   position_id: number;
   in_range: boolean;
   exchange: string;
@@ -67,6 +67,7 @@ type DatabasePosition = {
   token0decimals: number;
   token1decimals: number;
   owner: string;
+  tick_spacing: number;
 };
 
 // an in memory mapping of token addresses -> {symbol: string, decimals: number}
@@ -191,7 +192,7 @@ export const getPoolSlot0AndLiquidity = async (
   // The ABI for aerodrome is slightly different, so it needs its own ABI
   const clPoolContract = new ethers.Contract(
     poolAddress,
-    exchange == 'aerodrome' ? CLPoolAerodrome : ClPool,
+    exchange == "aerodrome" ? CLPoolAerodrome : ClPool,
     provider(exchange),
   );
   let slot0;
@@ -297,7 +298,7 @@ export const insertPositionIntoDatabase = async (
       token0Decimals,
       token1Decimals,
       owner,
-      tick_spacing ? tick_spacing : null
+      tick_spacing ? tick_spacing : null,
     ],
   );
 };
@@ -336,11 +337,9 @@ export const removePositionFromDatabase = async (
 
 export const getUserTrackedPositions = async (
   tgId: string,
-): Promise<
-  Array<DatabasePosition>
-> => {
+): Promise<Array<DatabasePosition>> => {
   const result = await pool.query(
-    `SELECT position_id, in_range, exchange, token0, token1, token0symbol, token1symbol, fee, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals, owner FROM positions WHERE tg_id = $1 AND burned IS FALSE`,
+    `SELECT position_id, in_range, exchange, token0, token1, token0symbol, token1symbol, fee, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals, owner, tick_spacing FROM positions WHERE tg_id = $1 AND burned IS FALSE`,
     [tgId],
   );
   return result.rows;
