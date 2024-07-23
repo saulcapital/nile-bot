@@ -6,6 +6,7 @@ import ClPool from "./abi/ClPool.json";
 import ERC20 from "./abi/ERC20.json";
 import GaugeV2 from "./abi/GaugeV2.json";
 import ClGaugeFactory from "./abi/ClGaugeFactory.json";
+import {computeAerodromeClPoolAddress} from "./helpers";
 import { Pool, Position } from "ramsesexchange-v3-sdk";
 import { Token } from "@uniswap/sdk-core";
 import { Pool as PgPool } from "pg";
@@ -67,7 +68,7 @@ export const getPositionFromChain = async (
     token1: string;
     fee: number;
     liquidity: string;
-    tickSpacing: number;
+    4: number // this is tickSpacing
   };
   owner?: string;
   token0Symbol?: string;
@@ -140,6 +141,7 @@ export const getPoolSlot0AndLiquidity = async (
   token1: string,
   fee: number,
   exchange: string,
+  tickSpacing?: number,
 ): Promise<null | {
   slot0: [number, number, number, number, number, number, number, boolean];
   liquidity: number;
@@ -147,13 +149,22 @@ export const getPoolSlot0AndLiquidity = async (
 }> => {
   const tokenA = new Token(CHAIN_IDS[exchange], token0, 18);
   const tokenB = new Token(CHAIN_IDS[exchange], token1, 18);
-  const poolAddress = Pool.getAddress(
-    tokenA,
-    tokenB,
-    fee,
-    POOL_INIT_CODE_HASHES[exchange],
-    FACTORIES[exchange],
-  );
+  let poolAddress;
+  if (exchange == 'aerodrome') {
+    if (!tickSpacing) {
+      console.log("You must provide tickSpacing for aerodrome")
+      return null;
+    }
+    poolAddress = await computeAerodromeClPoolAddress(FACTORIES['aerodrome'], [token0, token1], tickSpacing, provider('aerodrome'))
+  } else {
+    poolAddress = Pool.getAddress(
+      tokenA,
+      tokenB,
+      fee,
+      POOL_INIT_CODE_HASHES[exchange],
+      FACTORIES[exchange],
+    );
+  }
   const clPoolContract = new ethers.Contract(
     poolAddress,
     ClPool,

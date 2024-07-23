@@ -38,8 +38,6 @@ export const POOL_INIT_CODE_HASHES: { [key: string]: string } = {
   ra: "0x1565b129f2d1790f12d45301b9b084335626f0c92410bc43130763b69971135d",
   cleo: "0x1565b129f2d1790f12d45301b9b084335626f0c92410bc43130763b69971135d",
   ramses: "0x1565b129f2d1790f12d45301b9b084335626f0c92410bc43130763b69971135d",
-  aerodrome:
-    "0x1137f03af9c4fae623c3fd821981f48fd7e2bb4d7e78945336a05093b92acf5c",
 };
 
 export const FACTORIES: { [key: string]: string } = {

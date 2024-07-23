@@ -1,6 +1,7 @@
 import { ethers, AbiCoder } from "ethers";
 import CLFactoryAerodrome from "./abi/CLFactoryAerodrome.json";
 
+//Got code from https://github.com/aerodrome-finance/slipstream/blob/f10953a777ae53a8f230028122420949508b5357/test/periphery/shared/computePoolAddress.ts#L4
 export async function computeAerodromeClPoolAddress(
   factoryAddress: string,
   [tokenA, tokenB]: [string, string],

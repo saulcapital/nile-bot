@@ -106,12 +106,15 @@ async function tryGetPositionRewards() {
 async function tryAerodrome() {
   const onChainPosition = await getPositionFromChain(250059, "aerodrome");
   console.log("onChainPosition", onChainPosition);
+  console.log("onChainPosition.position!.tickSpacing", onChainPosition.position![4]);
   const poolInfo = await getPoolSlot0AndLiquidity(
     onChainPosition.position!.token0,
     onChainPosition.position!.token1,
     onChainPosition.position!.fee,
     "aerodrome",
+    onChainPosition.position![4]
   );
+  console.log("poolInfo", poolInfo);
 }
 
 async function getAerodromeAddress() {
