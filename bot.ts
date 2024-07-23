@@ -258,27 +258,28 @@ const getTextResponseFromPool = async (
   const { amount0, amount1 } = position.mintAmounts;
 
   const apiResult = apiResults.find((x: any) => x.exchange == pool.exchange);
-  if (!apiResult) {
-    await ctx.reply("Error: There was no apiResult");
-    return;
-  }
-  const tokens = apiResult.data.tokens;
-  const token0FromApi = tokens.find(
-    (x: { id: string }) => x.id.toLowerCase() == pool.token0.toLowerCase(),
-  );
-  const token1FromApi = tokens.find(
-    (x: { id: string }) => x.id.toLowerCase() == pool.token1.toLowerCase(),
-  );
-  const totalValue = Math.round(
-    Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)) *
-      token0FromApi.price +
-      Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)) *
-        token1FromApi.price,
-  );
 
   let rewardsString;
-  // Get number of reward tokens
-  if (pool.exchange != "ra") {
+  let response = "";
+  response += `<b>${pool.exchange} (#${pool.position_id})</b>: ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
+  response += `    • https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
+
+  // Get number of reward tokens for Kingdom exchanges only
+  if (KINGDOM_EXCHANGES_WITH_API.includes(pool.exchange)) {
+    const tokens = apiResult.data.tokens;
+    const token0FromApi = tokens.find(
+      (x: { id: string }) => x.id.toLowerCase() == pool.token0.toLowerCase(),
+    );
+    const token1FromApi = tokens.find(
+      (x: { id: string }) => x.id.toLowerCase() == pool.token1.toLowerCase(),
+    );
+    const totalValue = Math.round(
+      Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)) *
+      token0FromApi.price +
+      Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)) *
+      token1FromApi.price,
+    );
+
     let numRewards = await getPositionRewards(
       poolInfo!.poolAddress,
       pool.exchange,
@@ -291,12 +292,9 @@ const getTextResponseFromPool = async (
     );
     const rewardsValue = numRewards * rewardTokenFromApi.price;
     rewardsString = `${numRewards.toFixed(1)} ${REWARD_TOKEN_NAMES[pool.exchange]} ($${rewardsValue.toFixed(2)})`;
+    response += `    • <b>TVL :</b>$${totalValue.toLocaleString()}${rewardsString ? ` / <b>Rewards</b>: ${rewardsString}` : ""}\n\n`;
   }
 
-  let response = "";
-  response += `<b>${pool.exchange} (#${pool.position_id})</b>: ${pool.token0symbol} (${Number(ethers.formatUnits(amount0.toString(), pool.token0decimals)).toFixed(2)}) + ${pool.token1symbol} (${Number(ethers.formatUnits(amount1.toString(), pool.token1decimals)).toFixed(2)}) from ${pool.owner.substring(0, 6) + "..." + pool.owner.slice(-4)}, ${inRangeText}\n`;
-  response += `    • https://${pool.exchange}.${pool.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${pool.position_id}\n`;
-  response += `    • <b>TVL :</b>$${totalValue.toLocaleString()}${rewardsString ? ` / <b>Rewards</b>: ${rewardsString}` : ""}\n\n`;
   return response;
 };
 
