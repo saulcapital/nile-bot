@@ -275,6 +275,8 @@ const getTextResponseFromUserPosition = async (
     const rewardsValue = numRewards * rewardTokenFromApi.price;
     rewardsString = `${numRewards.toFixed(1)} ${REWARD_TOKEN_NAMES[pool.exchange]} ($${rewardsValue.toFixed(2)})`;
     response += `    • <b>TVL :</b>$${totalValue.toLocaleString()}${rewardsString ? ` / <b>Rewards</b>: ${rewardsString}` : ""}\n\n`;
+  } else {
+    response += '\n';
   }
 
   return response;
