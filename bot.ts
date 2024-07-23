@@ -232,6 +232,8 @@ const getTextResponseFromUserPosition = async (
       JSBI.BigInt(sqrtRatiox96),
       poolLiquidity,
       currentTick,
+      undefined,
+      pool.tick_spacing
     ),
     liquidity: JSBI.BigInt(pool.positionliquidity),
     tickLower: pool.ticklower,
