@@ -105,13 +105,13 @@ async function tryGetPositionRewards() {
 
 async function tryAerodrome() {
   const onChainPosition = await getPositionFromChain(250059, "aerodrome");
+  console.log("onChainPosition", onChainPosition);
   const poolInfo = await getPoolSlot0AndLiquidity(
     onChainPosition.position!.token0,
     onChainPosition.position!.token1,
     onChainPosition.position!.fee,
     "aerodrome",
   );
-  console.log({ onChainPosition, poolInfo });
 }
 
 async function getAerodromeAddress() {
@@ -129,7 +129,7 @@ async function getAerodromeAddress() {
 }
 
 // POSIX compliant apps should report an exit status
-getAerodromeAddress()
+tryAerodrome()
   .then(() => {
     process.exit(0);
   })

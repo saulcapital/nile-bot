@@ -54,6 +54,7 @@ export const REWARD_TOKENS: Record<string, string> = {
 // an in memory mapping of token addresses -> {symbol: string, decimals: number}
 const tokenSymbols: Record<string, { symbol: string; decimals: number }> = {};
 
+// get position data using NonFungiblePositionManager.positions() function
 export const getPositionFromChain = async (
   positionId: number,
   exchange: string,
@@ -66,6 +67,7 @@ export const getPositionFromChain = async (
     token1: string;
     fee: number;
     liquidity: string;
+    tickSpacing: number;
   };
   owner?: string;
   token0Symbol?: string;
@@ -132,7 +134,7 @@ export const getPositionFromChain = async (
   };
 };
 
-// slot0[1] is tick, slot0[0] is sqrtPriceX96
+// Get the CLPool contract and call slot() and liquidity(). slot0[1] is tick, slot0[0] is sqrtPriceX96
 export const getPoolSlot0AndLiquidity = async (
   token0: string,
   token1: string,
