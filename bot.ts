@@ -84,6 +84,15 @@ bot.command("track", async (ctx) => {
     positionId,
     exchange,
   );
+  if (databasePositions.length > 0) {
+    const userAlreadyTracking = databasePositions.some(
+      (pos) => pos.tg_id === userId.toString(),
+    );
+    if (userAlreadyTracking) {
+      await ctx.reply("This position is already being tracked by you.");
+      return;
+    }
+  }
   if (onChainPosition.status == "success") {
     const poolInfo = await getPoolSlot0AndLiquidity(
       onChainPosition.position!.token0,
@@ -100,65 +109,30 @@ bot.command("track", async (ctx) => {
     const inRange =
       onChainPosition.position!.tickLower <= slot0[1] &&
       onChainPosition.position!.tickUpper > slot0[1];
-
-    if (databasePositions.length == 0) {
-      await insertPositionIntoDatabase(
-        positionId,
-        userId.toString(),
-        inRange,
-        username.toString(),
-        exchange,
-        onChainPosition.position!.token0,
-        onChainPosition.position!.token1,
-        onChainPosition.position!.fee,
-        onChainPosition.token0Symbol!,
-        onChainPosition.token1Symbol!,
-        onChainPosition.position!.tickLower,
-        onChainPosition.position!.tickUpper,
-        onChainPosition.position!.liquidity,
-        onChainPosition.token0Decimals!,
-        onChainPosition.token1Decimals!,
-        onChainPosition.owner!,
-      );
-      await ctx.reply(
-        `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId}. It is currently ${inRange ? "in range." : "out of range."}`,
-      );
-      console.log(
-        `Tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for ${username} on ${new Date().toLocaleString()}`,
-      );
-    } else {
-      const userAlreadyTracking = databasePositions.some(
-        (pos) => pos.tg_id === userId.toString(),
-      );
-      if (!userAlreadyTracking) {
-        await insertPositionIntoDatabase(
-          positionId,
-          userId.toString(),
-          inRange,
-          username.toString(),
-          exchange,
-          onChainPosition.position!.token0,
-          onChainPosition.position!.token1,
-          onChainPosition.position!.fee,
-          onChainPosition.token0Symbol!,
-          onChainPosition.token1Symbol!,
-          onChainPosition.position!.tickLower,
-          onChainPosition.position!.tickUpper,
-          onChainPosition.position!.liquidity,
-          onChainPosition.token0Decimals!,
-          onChainPosition.token1Decimals!,
-          onChainPosition.owner!,
-        );
-        await ctx.reply(
-          `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for you. It is currently ${inRange ? "in range." : "out of range."}`,
-        );
-        console.log(
-          `Tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for ${username} on ${new Date().toLocaleString()}`,
-        );
-      } else {
-        await ctx.reply("This position is already being tracked by you.");
-      }
-    }
+    await insertPositionIntoDatabase(
+      positionId,
+      userId.toString(),
+      inRange,
+      username.toString(),
+      exchange,
+      onChainPosition.position!.token0,
+      onChainPosition.position!.token1,
+      onChainPosition.position!.fee,
+      onChainPosition.token0Symbol!,
+      onChainPosition.token1Symbol!,
+      onChainPosition.position!.tickLower,
+      onChainPosition.position!.tickUpper,
+      onChainPosition.position!.liquidity,
+      onChainPosition.token0Decimals!,
+      onChainPosition.token1Decimals!,
+      onChainPosition.owner!,
+    );
+    await ctx.reply(
+      `Now tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId}. It is currently ${inRange ? "in range." : "out of range."}`,
+    );
+    console.log(
+      `Tracking ${exchange} ${onChainPosition.token0Symbol}/${onChainPosition.token1Symbol} CL position ${positionId} for ${username} on ${new Date().toLocaleString()}`,
+    );
   } else if (onChainPosition.status == "burned") {
     if (databasePositions.length > 0) {
       await updateDatabasePositionBurned(positionId, exchange);
