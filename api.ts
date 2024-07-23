@@ -142,7 +142,7 @@ export const getPoolSlot0AndLiquidity = async (
   token1: string,
   fee: number,
   exchange: string,
-  tickSpacing?: number,
+  tickSpacing?: number | null,
 ): Promise<null | {
   slot0: [number, number, number, number, number, number, number, boolean];
   liquidity: number;

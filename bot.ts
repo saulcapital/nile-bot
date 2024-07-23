@@ -88,6 +88,7 @@ bot.command("track", async (ctx) => {
       onChainPosition.position!.token1,
       onChainPosition.position!.fee,
       exchange,
+      exchange == 'aerodrome' ? onChainPosition.position![4] : null
     );
     if (!poolInfo) {
       await ctx.reply("Error calling getPoolSlot0().");
