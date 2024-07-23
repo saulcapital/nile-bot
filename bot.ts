@@ -9,7 +9,7 @@ import {
   updateDatabasePositionBurned,
   removePositionFromDatabase,
   removeAllPositionsFromDatabase,
-  getUserTrackedPools,
+  getUserTrackedPositions,
   getPositionRewards,
   REWARD_TOKENS,
 } from "./api";
@@ -305,14 +305,14 @@ bot.command("pools", async (ctx) => {
     return;
   }
 
-  const trackedPools = await getUserTrackedPools(userId.toString());
+  const userPositions = await getUserTrackedPositions(userId.toString());
 
-  if (trackedPools.length === 0) {
+  if (userPositions.length === 0) {
     await ctx.reply("You are not tracking any pools.");
   } else {
     let response = "";
     let uniqueKingdomExchanges = [
-      ...new Set(trackedPools.map((pool) => pool.exchange)),
+      ...new Set(userPositions.map((pool) => pool.exchange)),
     ];
     uniqueKingdomExchanges = uniqueKingdomExchanges.filter(x => KINGDOM_EXCHANGES_WITH_API.includes(x));
 
@@ -330,7 +330,7 @@ bot.command("pools", async (ctx) => {
     const kingdomApiResults = await Promise.all(fetchPromises);
 
     let responses = await Promise.all(
-      trackedPools.map((x) => getTextResponseFromPool(x, kingdomApiResults, ctx)),
+      userPositions.map((x) => getTextResponseFromPool(x, kingdomApiResults, ctx)),
     );
     response = responses.join("");
     const username = ctx.message?.from.username;

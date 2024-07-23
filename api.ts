@@ -8,7 +8,7 @@ import ERC20 from "./abi/ERC20.json";
 import GaugeV2 from "./abi/GaugeV2.json";
 import ClGaugeFactory from "./abi/ClGaugeFactory.json";
 import { computeAerodromeClPoolAddress } from "./helpers";
-import { Pool, Position } from "ramsesexchange-v3-sdk";
+import { Pool } from "ramsesexchange-v3-sdk";
 import { Token } from "@uniswap/sdk-core";
 import { Pool as PgPool } from "pg";
 import {
@@ -51,6 +51,22 @@ export const REWARD_TOKENS: Record<string, string> = {
   cleo: "0xc1e0c8c30f251a07a894609616580ad2ceb547f2",
   ramses: "0xaaa6c1e32c55a7bfa8066a6fae9b42650f262418",
   pharaoh: "0xAAAB9D12A30504559b0C5a9A5977fEE4A6081c6b",
+};
+type DatabasePosition = {
+  position_id: number;
+  in_range: boolean;
+  exchange: string;
+  token0: string;
+  token1: string;
+  token0symbol: string;
+  token1symbol: string;
+  fee: number;
+  ticklower: number;
+  tickupper: number;
+  positionliquidity: string;
+  token0decimals: number;
+  token1decimals: number;
+  owner: string;
 };
 
 // an in memory mapping of token addresses -> {symbol: string, decimals: number}
@@ -315,25 +331,10 @@ export const removePositionFromDatabase = async (
   );
 };
 
-export const getUserTrackedPools = async (
+export const getUserTrackedPositions = async (
   tgId: string,
 ): Promise<
-  Array<{
-    position_id: number;
-    in_range: boolean;
-    exchange: string;
-    token0: string;
-    token1: string;
-    token0symbol: string;
-    token1symbol: string;
-    fee: number;
-    ticklower: number;
-    tickupper: number;
-    positionliquidity: string;
-    token0decimals: number;
-    token1decimals: number;
-    owner: string;
-  }>
+  Array<DatabasePosition>
 > => {
   const result = await pool.query(
     `SELECT position_id, in_range, exchange, token0, token1, token0symbol, token1symbol, fee, tickLower, tickUpper, positionLiquidity, token0decimals, token1decimals, owner FROM positions WHERE tg_id = $1 AND burned IS FALSE`,
