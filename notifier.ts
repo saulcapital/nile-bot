@@ -8,6 +8,7 @@ import {
   updateDatabasePositionBurned,
 } from "./api";
 import { Bot } from "grammy";
+import { getUrl} from "./helpers";
 
 // every 2 minutes, run
 const INTERVAL = 120000;
@@ -45,7 +46,7 @@ const main = async () => {
           const inRange =
             onchainPosition.position.tickLower <= currentTick &&
             currentTick < onchainPosition.position.tickUpper;
-          const url = `https://${databasePosition.exchange}.${databasePosition.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${databasePosition.position_id}\n`;
+          const url = `${getUrl(databasePosition)}\n`;
           if (!inRange) {
             if (databasePosition.in_range) {
               await updateDatabasePositionInRange(
@@ -55,7 +56,7 @@ const main = async () => {
               );
               await bot.api.sendMessage(
                 databasePosition.tg_id,
-                `${databasePosition.exchange} CL position ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} #${databasePosition.position_id} has moved out of range: ${url}`,
+                `${databasePosition.exchange} CL position ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} #${databasePosition.position_id} has moved out of range${url ? `: ${url}` : '.'}`,
               );
               console.log(
                 `Sent message for ${databasePosition.username} for ${databasePosition.position_id} ${databasePosition.exchange} ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} out of range`,
@@ -70,7 +71,7 @@ const main = async () => {
               );
               await bot.api.sendMessage(
                 databasePosition.tg_id,
-                `${databasePosition.exchange} CL position ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} #${databasePosition.position_id} has moved into range: : ${url}`,
+                `${databasePosition.exchange} CL position ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} #${databasePosition.position_id} has moved into range${url ? `: ${url}` : '.'}`,
               );
               console.log(
                 `Sent message for ${databasePosition.username} for ${databasePosition.position_id} ${databasePosition.exchange} ${onchainPosition.token0Symbol}/${onchainPosition.token1Symbol} back in range`,

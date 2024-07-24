@@ -42,3 +42,11 @@ export async function computeAerodromeClPoolAddress(
   const sanitizedInputs = `0x${create2Inputs.map((i) => i.slice(2)).join("")}`;
   return ethers.getAddress(`0x${ethers.keccak256(sanitizedInputs).slice(-40)}`);
 }
+
+export function getUrl(databasePosition: { exchange: string, position_id: number }) {
+  let url = ''
+  if (databasePosition.exchange != 'aerodrome') {
+    url = `https://${databasePosition.exchange}.${databasePosition.exchange == "nile" ? "build" : "exchange"}/liquidity/v2/${databasePosition.position_id}`;
+  }
+  return url;
+}
