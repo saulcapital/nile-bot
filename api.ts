@@ -251,10 +251,11 @@ export const getAllPositionsFromDatabase = async (): Promise<
     burned: boolean;
     in_range: boolean;
     exchange: string;
+    tick_spacing: number;
   }[]
 > => {
   let result = await pool.query(
-    `SELECT tg_id, username, position_id, burned, in_range, exchange FROM positions WHERE burned IS FALSE;`,
+    `SELECT tg_id, username, position_id, burned, in_range, exchange, tick_spacing FROM positions WHERE burned IS FALSE;`,
   );
   return result.rows;
 };

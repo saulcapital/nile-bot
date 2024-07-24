@@ -32,6 +32,7 @@ const main = async () => {
             onchainPosition.position!.token1,
             onchainPosition.position!.fee,
             databasePosition.exchange,
+            databasePosition.tick_spacing
           );
           if (!poolInfo) {
             console.log(
